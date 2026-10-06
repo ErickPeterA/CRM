@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run --config vitest.config.ts",
-    "user:create": "tsx scripts/create-user.ts"
+    "create-admin": "node --env-file-if-exists=.env --import tsx scripts/create-admin.ts"
   },
   "dependencies": {
     "@tanstack/react-router": "^1.170.18",

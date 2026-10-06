@@ -1,8 +1,8 @@
 import '@tanstack/react-start/server-only'
 import { createHash, randomBytes } from 'node:crypto'
-import argon2 from 'argon2'
 import { getCookie, setCookie } from '@tanstack/react-start/server'
 import { query, transaction } from './db.server'
+import { verifyPassword } from './password.server'
 
 const COOKIE_NAME = 'crm_session'
 const SESSION_DAYS = 8
@@ -23,7 +23,7 @@ export async function authenticate(email: string, password: string) {
     [email.trim().toLowerCase()],
   )
   const user = result.rows[0]
-  if (!user || !(await argon2.verify(user.password_hash, password))) return null
+  if (!user || !(await verifyPassword(user.password_hash, password))) return null
 
   const token = randomBytes(32).toString('base64url')
   const expiresAt = new Date(Date.now() + SESSION_DAYS * 86_400_000)

@@ -34,11 +34,13 @@ npx supabase db push --dry-run --db-url "<DATABASE_URL>"
 npx supabase db push --db-url "<DATABASE_URL>"
 ```
 
-Após aplicar a migration inicial, crie o primeiro usuário sem manter senha em arquivo:
+Após aplicar a migration inicial, crie o primeiro usuário administrador de modo interativo. O comando exige um terminal TTY, não aceita senha em argumentos ou pipe, não exibe a senha digitada e nunca a armazena em texto puro:
 
 ```bash
-npm run user:create -- "Administrador" admin@empresa.com "SENHA_FORTE" administrator
+npm run create-admin
 ```
+
+O comando carrega automaticamente a `.env` local quando ela existir; no container, usa a `DATABASE_URL` injetada pelo ambiente. Portanto, funciona tanto com a URL local apontando para o túnel SSH quanto dentro do container de produção. Ele normaliza o email, recusa duplicidade, cria o usuário ativo e atribui o perfil `Administrador` em uma única transação.
 
 ## Validação e produção
 
