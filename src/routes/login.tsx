@@ -1,9 +1,10 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { login } from '../lib/auth.functions'
+import { getCurrentUser } from '../lib/auth.functions'
 
-export const Route = createFileRoute('/login')({ component: LoginPage })
+export const Route = createFileRoute('/login')({ beforeLoad: async () => { if (await getCurrentUser()) throw redirect({ to: '/' }) }, component: LoginPage })
 
 function LoginPage() {
   const loginFn = useServerFn(login)

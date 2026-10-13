@@ -1,0 +1,6 @@
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { AppShell } from '../../components/AppShell'
+import { getCurrentUser } from '../../lib/auth.functions'
+import { adminData } from '../../lib/catalog.functions'
+export const Route=createFileRoute('/admin/perfis')({beforeLoad:async()=>{const user=await getCurrentUser();if(!user)throw redirect({to:'/login'});if(!user.permissions.includes('admin.manage'))throw redirect({to:'/'});return{user}},loader:()=>adminData(),component:RolesPage})
+function RolesPage(){const data=Route.useLoaderData();return <AppShell><div className="tabs"><Link to="/admin/usuarios">Usuários</Link><Link to="/admin/perfis" activeProps={{className:'active'}}>Perfis</Link></div><header className="page-head"><div><p className="eyebrow">ADMINISTRAÇÃO</p><h1>Perfis e permissões</h1><p>Visão centralizada das capacidades RBAC configuradas no banco.</p></div></header><div className="role-grid">{data.roles.map(role=><article className="card" key={role.id}><div className="card-head"><div><h3>{role.name}</h3><small>{role.code}</small></div>{role.is_system&&<span className="badge">Sistema</span>}</div><p>{role.description}</p><div className="permission-list">{role.permission_codes.map(permission=><span key={permission}>{permission}</span>)}</div></article>)}</div></AppShell>}

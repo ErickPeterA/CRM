@@ -1,9 +1,12 @@
-import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-router'
+import { createRootRoute, HeadContent, Link, Outlet, Scripts } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
+import '../tailwind.css'
 import '../styles.css'
 import '../styles-overrides.css'
+import { getCurrentUser } from '../lib/auth.functions'
 
 export const Route = createRootRoute({
+  beforeLoad: async () => ({ user: await getCurrentUser() }),
   head: () => ({
     meta: [
       { charSet: 'utf-8' },
@@ -12,6 +15,8 @@ export const Route = createRootRoute({
       { name: 'description', content: 'Operação integrada de consultoria' },
     ],
   }),
+  errorComponent: ({ error }) => <main className="standalone-state"><p className="eyebrow">ERRO</p><h1>Não foi possível carregar esta página</h1><p>{error instanceof Error&&error.message==='NOT_FOUND'?'O registro solicitado não existe ou foi arquivado.':'Tente novamente. Se o problema persistir, procure o administrador.'}</p><Link className="primary-button" to="/">Voltar aos módulos</Link></main>,
+  notFoundComponent: () => <main className="standalone-state"><p className="eyebrow">404</p><h1>Página não encontrada</h1><p>O endereço acessado não existe ou não está disponível nesta fase.</p><Link className="primary-button" to="/">Voltar aos módulos</Link></main>,
   component: RootDocument,
 })
 

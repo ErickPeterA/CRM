@@ -10,12 +10,40 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ContatosRouteImport } from './routes/contatos'
+import { Route as CrmRouteImport } from './routes/crm'
 import { Route as HealthRouteImport } from './routes/health'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as AdminPerfisRouteImport } from './routes/admin/perfis'
+import { Route as AdminUsuariosRouteImport } from './routes/admin/usuarios'
+import { Route as ClientesIndexRouteImport } from './routes/clientes/index'
+import { Route as ClientesClientIdRouteImport } from './routes/clientes/$clientId'
+import { Route as ClientesNovoRouteImport } from './routes/clientes/novo'
+import { Route as ModulosModuleRouteImport } from './routes/modulos.$module'
+import { Route as ProcessosIndexRouteImport } from './routes/processos/index'
+import { Route as ProcessosCadastroRouteImport } from './routes/processos/cadastro'
+import { Route as ProdutosIndexRouteImport } from './routes/produtos/index'
+import { Route as ProdutosProductIdRouteImport } from './routes/produtos/$productId'
+import { Route as ProdutosNovoRouteImport } from './routes/produtos/novo'
+import { Route as ClientesClientIdEditarRouteImport } from './routes/clientes/$clientId/editar'
+import { Route as CrmPropostasOpportunityIdRouteImport } from './routes/crm_.propostas.$opportunityId'
+import { Route as ProcessosServicosIndexRouteImport } from './routes/processos/servicos/index'
+import { Route as ProcessosServicosServiceIdRouteImport } from './routes/processos/servicos/$serviceId'
+import { Route as ProdutosProductIdEditarRouteImport } from './routes/produtos/$productId/editar'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContatosRoute = ContatosRouteImport.update({
+  id: '/contatos',
+  path: '/contatos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CrmRoute = CrmRouteImport.update({
+  id: '/crm',
+  path: '/crm',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HealthRoute = HealthRouteImport.update({
@@ -28,35 +56,251 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminPerfisRoute = AdminPerfisRouteImport.update({
+  id: '/admin/perfis',
+  path: '/admin/perfis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
+  id: '/admin/usuarios',
+  path: '/admin/usuarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClientesIndexRoute = ClientesIndexRouteImport.update({
+  id: '/clientes/',
+  path: '/clientes/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClientesClientIdRoute = ClientesClientIdRouteImport.update({
+  id: '/clientes/$clientId',
+  path: '/clientes/$clientId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClientesNovoRoute = ClientesNovoRouteImport.update({
+  id: '/clientes/novo',
+  path: '/clientes/novo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModulosModuleRoute = ModulosModuleRouteImport.update({
+  id: '/modulos/$module',
+  path: '/modulos/$module',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProcessosIndexRoute = ProcessosIndexRouteImport.update({
+  id: '/processos/',
+  path: '/processos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProcessosCadastroRoute = ProcessosCadastroRouteImport.update({
+  id: '/processos/cadastro',
+  path: '/processos/cadastro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProdutosIndexRoute = ProdutosIndexRouteImport.update({
+  id: '/produtos/',
+  path: '/produtos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProdutosProductIdRoute = ProdutosProductIdRouteImport.update({
+  id: '/produtos/$productId',
+  path: '/produtos/$productId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProdutosNovoRoute = ProdutosNovoRouteImport.update({
+  id: '/produtos/novo',
+  path: '/produtos/novo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClientesClientIdEditarRoute = ClientesClientIdEditarRouteImport.update({
+  id: '/editar',
+  path: '/editar',
+  getParentRoute: () => ClientesClientIdRoute,
+} as any)
+const CrmPropostasOpportunityIdRoute =
+  CrmPropostasOpportunityIdRouteImport.update({
+    id: '/crm_/propostas/$opportunityId',
+    path: '/crm/propostas/$opportunityId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ProcessosServicosIndexRoute = ProcessosServicosIndexRouteImport.update({
+  id: '/processos/servicos/',
+  path: '/processos/servicos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProcessosServicosServiceIdRoute =
+  ProcessosServicosServiceIdRouteImport.update({
+    id: '/processos/servicos/$serviceId',
+    path: '/processos/servicos/$serviceId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ProdutosProductIdEditarRoute = ProdutosProductIdEditarRouteImport.update({
+  id: '/editar',
+  path: '/editar',
+  getParentRoute: () => ProdutosProductIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/contatos': typeof ContatosRoute
+  '/crm': typeof CrmRoute
   '/health': typeof HealthRoute
   '/login': typeof LoginRoute
+  '/admin/perfis': typeof AdminPerfisRoute
+  '/admin/usuarios': typeof AdminUsuariosRoute
+  '/clientes/$clientId': typeof ClientesClientIdRouteWithChildren
+  '/clientes/novo': typeof ClientesNovoRoute
+  '/modulos/$module': typeof ModulosModuleRoute
+  '/processos/cadastro': typeof ProcessosCadastroRoute
+  '/produtos/$productId': typeof ProdutosProductIdRouteWithChildren
+  '/produtos/novo': typeof ProdutosNovoRoute
+  '/clientes/': typeof ClientesIndexRoute
+  '/processos/': typeof ProcessosIndexRoute
+  '/produtos/': typeof ProdutosIndexRoute
+  '/clientes/$clientId/editar': typeof ClientesClientIdEditarRoute
+  '/crm/propostas/$opportunityId': typeof CrmPropostasOpportunityIdRoute
+  '/processos/servicos/$serviceId': typeof ProcessosServicosServiceIdRoute
+  '/produtos/$productId/editar': typeof ProdutosProductIdEditarRoute
+  '/processos/servicos/': typeof ProcessosServicosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/contatos': typeof ContatosRoute
+  '/crm': typeof CrmRoute
   '/health': typeof HealthRoute
   '/login': typeof LoginRoute
+  '/admin/perfis': typeof AdminPerfisRoute
+  '/admin/usuarios': typeof AdminUsuariosRoute
+  '/clientes/$clientId': typeof ClientesClientIdRouteWithChildren
+  '/clientes/novo': typeof ClientesNovoRoute
+  '/modulos/$module': typeof ModulosModuleRoute
+  '/processos/cadastro': typeof ProcessosCadastroRoute
+  '/produtos/$productId': typeof ProdutosProductIdRouteWithChildren
+  '/produtos/novo': typeof ProdutosNovoRoute
+  '/clientes': typeof ClientesIndexRoute
+  '/processos': typeof ProcessosIndexRoute
+  '/produtos': typeof ProdutosIndexRoute
+  '/clientes/$clientId/editar': typeof ClientesClientIdEditarRoute
+  '/crm/propostas/$opportunityId': typeof CrmPropostasOpportunityIdRoute
+  '/processos/servicos/$serviceId': typeof ProcessosServicosServiceIdRoute
+  '/produtos/$productId/editar': typeof ProdutosProductIdEditarRoute
+  '/processos/servicos': typeof ProcessosServicosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/contatos': typeof ContatosRoute
+  '/crm': typeof CrmRoute
   '/health': typeof HealthRoute
   '/login': typeof LoginRoute
+  '/admin/perfis': typeof AdminPerfisRoute
+  '/admin/usuarios': typeof AdminUsuariosRoute
+  '/clientes/$clientId': typeof ClientesClientIdRouteWithChildren
+  '/clientes/novo': typeof ClientesNovoRoute
+  '/modulos/$module': typeof ModulosModuleRoute
+  '/processos/cadastro': typeof ProcessosCadastroRoute
+  '/produtos/$productId': typeof ProdutosProductIdRouteWithChildren
+  '/produtos/novo': typeof ProdutosNovoRoute
+  '/clientes/': typeof ClientesIndexRoute
+  '/processos/': typeof ProcessosIndexRoute
+  '/produtos/': typeof ProdutosIndexRoute
+  '/clientes/$clientId/editar': typeof ClientesClientIdEditarRoute
+  '/crm_/propostas/$opportunityId': typeof CrmPropostasOpportunityIdRoute
+  '/processos/servicos/$serviceId': typeof ProcessosServicosServiceIdRoute
+  '/produtos/$productId/editar': typeof ProdutosProductIdEditarRoute
+  '/processos/servicos/': typeof ProcessosServicosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/health' | '/login'
+  fullPaths:
+    | '/'
+    | '/contatos'
+    | '/crm'
+    | '/health'
+    | '/login'
+    | '/admin/perfis'
+    | '/admin/usuarios'
+    | '/clientes/$clientId'
+    | '/clientes/novo'
+    | '/modulos/$module'
+    | '/processos/cadastro'
+    | '/produtos/$productId'
+    | '/produtos/novo'
+    | '/clientes/'
+    | '/processos/'
+    | '/produtos/'
+    | '/clientes/$clientId/editar'
+    | '/crm/propostas/$opportunityId'
+    | '/processos/servicos/$serviceId'
+    | '/produtos/$productId/editar'
+    | '/processos/servicos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/health' | '/login'
-  id: '__root__' | '/' | '/health' | '/login'
+  to:
+    | '/'
+    | '/contatos'
+    | '/crm'
+    | '/health'
+    | '/login'
+    | '/admin/perfis'
+    | '/admin/usuarios'
+    | '/clientes/$clientId'
+    | '/clientes/novo'
+    | '/modulos/$module'
+    | '/processos/cadastro'
+    | '/produtos/$productId'
+    | '/produtos/novo'
+    | '/clientes'
+    | '/processos'
+    | '/produtos'
+    | '/clientes/$clientId/editar'
+    | '/crm/propostas/$opportunityId'
+    | '/processos/servicos/$serviceId'
+    | '/produtos/$productId/editar'
+    | '/processos/servicos'
+  id:
+    | '__root__'
+    | '/'
+    | '/contatos'
+    | '/crm'
+    | '/health'
+    | '/login'
+    | '/admin/perfis'
+    | '/admin/usuarios'
+    | '/clientes/$clientId'
+    | '/clientes/novo'
+    | '/modulos/$module'
+    | '/processos/cadastro'
+    | '/produtos/$productId'
+    | '/produtos/novo'
+    | '/clientes/'
+    | '/processos/'
+    | '/produtos/'
+    | '/clientes/$clientId/editar'
+    | '/crm_/propostas/$opportunityId'
+    | '/processos/servicos/$serviceId'
+    | '/produtos/$productId/editar'
+    | '/processos/servicos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ContatosRoute: typeof ContatosRoute
+  CrmRoute: typeof CrmRoute
   HealthRoute: typeof HealthRoute
   LoginRoute: typeof LoginRoute
+  AdminPerfisRoute: typeof AdminPerfisRoute
+  AdminUsuariosRoute: typeof AdminUsuariosRoute
+  ClientesClientIdRoute: typeof ClientesClientIdRouteWithChildren
+  ClientesNovoRoute: typeof ClientesNovoRoute
+  ModulosModuleRoute: typeof ModulosModuleRoute
+  ProcessosCadastroRoute: typeof ProcessosCadastroRoute
+  ProdutosProductIdRoute: typeof ProdutosProductIdRouteWithChildren
+  ProdutosNovoRoute: typeof ProdutosNovoRoute
+  ClientesIndexRoute: typeof ClientesIndexRoute
+  ProcessosIndexRoute: typeof ProcessosIndexRoute
+  ProdutosIndexRoute: typeof ProdutosIndexRoute
+  CrmPropostasOpportunityIdRoute: typeof CrmPropostasOpportunityIdRoute
+  ProcessosServicosServiceIdRoute: typeof ProcessosServicosServiceIdRoute
+  ProcessosServicosIndexRoute: typeof ProcessosServicosIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -66,6 +310,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contatos': {
+      id: '/contatos'
+      path: '/contatos'
+      fullPath: '/contatos'
+      preLoaderRoute: typeof ContatosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/crm': {
+      id: '/crm'
+      path: '/crm'
+      fullPath: '/crm'
+      preLoaderRoute: typeof CrmRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/health': {
@@ -82,13 +340,163 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/perfis': {
+      id: '/admin/perfis'
+      path: '/admin/perfis'
+      fullPath: '/admin/perfis'
+      preLoaderRoute: typeof AdminPerfisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/usuarios': {
+      id: '/admin/usuarios'
+      path: '/admin/usuarios'
+      fullPath: '/admin/usuarios'
+      preLoaderRoute: typeof AdminUsuariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clientes/': {
+      id: '/clientes/'
+      path: '/clientes'
+      fullPath: '/clientes/'
+      preLoaderRoute: typeof ClientesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clientes/$clientId': {
+      id: '/clientes/$clientId'
+      path: '/clientes/$clientId'
+      fullPath: '/clientes/$clientId'
+      preLoaderRoute: typeof ClientesClientIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clientes/novo': {
+      id: '/clientes/novo'
+      path: '/clientes/novo'
+      fullPath: '/clientes/novo'
+      preLoaderRoute: typeof ClientesNovoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/modulos/$module': {
+      id: '/modulos/$module'
+      path: '/modulos/$module'
+      fullPath: '/modulos/$module'
+      preLoaderRoute: typeof ModulosModuleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/processos/': {
+      id: '/processos/'
+      path: '/processos'
+      fullPath: '/processos/'
+      preLoaderRoute: typeof ProcessosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/processos/cadastro': {
+      id: '/processos/cadastro'
+      path: '/processos/cadastro'
+      fullPath: '/processos/cadastro'
+      preLoaderRoute: typeof ProcessosCadastroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/produtos/': {
+      id: '/produtos/'
+      path: '/produtos'
+      fullPath: '/produtos/'
+      preLoaderRoute: typeof ProdutosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/produtos/$productId': {
+      id: '/produtos/$productId'
+      path: '/produtos/$productId'
+      fullPath: '/produtos/$productId'
+      preLoaderRoute: typeof ProdutosProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/produtos/novo': {
+      id: '/produtos/novo'
+      path: '/produtos/novo'
+      fullPath: '/produtos/novo'
+      preLoaderRoute: typeof ProdutosNovoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clientes/$clientId/editar': {
+      id: '/clientes/$clientId/editar'
+      path: '/editar'
+      fullPath: '/clientes/$clientId/editar'
+      preLoaderRoute: typeof ClientesClientIdEditarRouteImport
+      parentRoute: typeof ClientesClientIdRoute
+    }
+    '/crm_/propostas/$opportunityId': {
+      id: '/crm_/propostas/$opportunityId'
+      path: '/crm/propostas/$opportunityId'
+      fullPath: '/crm/propostas/$opportunityId'
+      preLoaderRoute: typeof CrmPropostasOpportunityIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/processos/servicos/': {
+      id: '/processos/servicos/'
+      path: '/processos/servicos'
+      fullPath: '/processos/servicos/'
+      preLoaderRoute: typeof ProcessosServicosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/processos/servicos/$serviceId': {
+      id: '/processos/servicos/$serviceId'
+      path: '/processos/servicos/$serviceId'
+      fullPath: '/processos/servicos/$serviceId'
+      preLoaderRoute: typeof ProcessosServicosServiceIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/produtos/$productId/editar': {
+      id: '/produtos/$productId/editar'
+      path: '/editar'
+      fullPath: '/produtos/$productId/editar'
+      preLoaderRoute: typeof ProdutosProductIdEditarRouteImport
+      parentRoute: typeof ProdutosProductIdRoute
+    }
   }
 }
 
+interface ClientesClientIdRouteChildren {
+  ClientesClientIdEditarRoute: typeof ClientesClientIdEditarRoute
+}
+
+const ClientesClientIdRouteChildren: ClientesClientIdRouteChildren = {
+  ClientesClientIdEditarRoute: ClientesClientIdEditarRoute,
+}
+
+const ClientesClientIdRouteWithChildren =
+  ClientesClientIdRoute._addFileChildren(ClientesClientIdRouteChildren)
+
+interface ProdutosProductIdRouteChildren {
+  ProdutosProductIdEditarRoute: typeof ProdutosProductIdEditarRoute
+}
+
+const ProdutosProductIdRouteChildren: ProdutosProductIdRouteChildren = {
+  ProdutosProductIdEditarRoute: ProdutosProductIdEditarRoute,
+}
+
+const ProdutosProductIdRouteWithChildren =
+  ProdutosProductIdRoute._addFileChildren(ProdutosProductIdRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ContatosRoute: ContatosRoute,
+  CrmRoute: CrmRoute,
   HealthRoute: HealthRoute,
   LoginRoute: LoginRoute,
+  AdminPerfisRoute: AdminPerfisRoute,
+  AdminUsuariosRoute: AdminUsuariosRoute,
+  ClientesClientIdRoute: ClientesClientIdRouteWithChildren,
+  ClientesNovoRoute: ClientesNovoRoute,
+  ModulosModuleRoute: ModulosModuleRoute,
+  ProcessosCadastroRoute: ProcessosCadastroRoute,
+  ProdutosProductIdRoute: ProdutosProductIdRouteWithChildren,
+  ProdutosNovoRoute: ProdutosNovoRoute,
+  ClientesIndexRoute: ClientesIndexRoute,
+  ProcessosIndexRoute: ProcessosIndexRoute,
+  ProdutosIndexRoute: ProdutosIndexRoute,
+  CrmPropostasOpportunityIdRoute: CrmPropostasOpportunityIdRoute,
+  ProcessosServicosServiceIdRoute: ProcessosServicosServiceIdRoute,
+  ProcessosServicosIndexRoute: ProcessosServicosIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

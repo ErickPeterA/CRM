@@ -34,6 +34,8 @@ npx supabase db push --dry-run --db-url "<DATABASE_URL>"
 npx supabase db push --db-url "<DATABASE_URL>"
 ```
 
+As migrations são incrementais e nunca devem ser editadas depois de aplicadas. A Fase 1 operacional acrescenta os campos de clientes e de templates em `20261006170000_phase_1_operational_crud.sql`.
+
 Após aplicar a migration inicial, crie o primeiro usuário administrador de modo interativo. O comando exige um terminal TTY, não aceita senha em argumentos ou pipe, não exibe a senha digitada e nunca a armazena em texto puro:
 
 ```bash
@@ -41,6 +43,18 @@ npm run create-admin
 ```
 
 O comando carrega automaticamente a `.env` local quando ela existir; no container, usa a `DATABASE_URL` injetada pelo ambiente. Portanto, funciona tanto com a URL local apontando para o túnel SSH quanto dentro do container de produção. Ele normaliza o email, recusa duplicidade, cria o usuário ativo e atribui o perfil `Administrador` em uma única transação.
+
+## Funcionalidades da Fase 1
+
+- `/` — dashboard com indicadores reais do PostgreSQL;
+- `/clientes` — listagem, cadastro, detalhe, edição e arquivamento;
+- contatos — cadastro, edição e desativação dentro do detalhe do cliente;
+- `/produtos` — catálogo, cadastro, detalhe, edição e arquivamento;
+- template do produto — macroetapas, atividades e entregáveis em versão de rascunho;
+- `/admin/usuarios` — status e atribuição de perfil;
+- `/admin/perfis` — perfis e permissões efetivas do RBAC.
+
+Versões de template publicadas são imutáveis. A interface só permite alterações na versão em `draft`, preservando a evolução histórica necessária para os projetos futuros.
 
 ## Validação e produção
 

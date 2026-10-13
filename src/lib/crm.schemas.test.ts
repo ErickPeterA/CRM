@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { clientSchema, productSchema } from './crm.schemas'
+import { activitySchema, clientSchema, contactSchema, deliverableSchema, phaseSchema, productSchema, userCreateSchema, userUpdateSchema } from './crm.schemas'
 
-describe('validação de domínio da fundação', () => {
-  it('aceita um cliente válido', () => {
-    expect(clientSchema.safeParse({ legalName: 'Acme Consultoria', type: 'company', status: 'prospect' }).success).toBe(true)
-  })
-  it('rejeita código de produto fora do padrão', () => {
-    expect(productSchema.safeParse({ code: 'produto inválido', name: 'Diagnóstico', area: 'Estratégia', description: 'Descrição completa', objective: 'Objetivo completo' }).success).toBe(false)
-  })
+describe('validação de clientes e contatos', () => {
+  it('aceita cliente completo e normalizável', () => expect(clientSchema.safeParse({legalName:'Acme Consultoria',type:'company',status:'active',state:'sp'}).success).toBe(true))
+  it('rejeita UF inválida', () => expect(clientSchema.safeParse({legalName:'Acme',type:'company',status:'active',state:'São Paulo'}).success).toBe(false))
+  it('exige vínculo do contato com cliente', () => expect(contactSchema.safeParse({clientId:'inválido',name:'Maria',isPrimary:false}).success).toBe(false))
 })
+describe('validação do produto e template', () => {
+  const product={code:'DIAG_FIN',name:'Diagnóstico financeiro',area:'Financeiro',description:'Descrição suficientemente completa',objective:'Objetivo suficientemente completo',status:'draft',checklist:[],indicators:[]}
+  it('aceita produto estruturado', () => expect(productSchema.safeParse(product).success).toBe(true))
+  it('rejeita código fora do padrão', () => expect(productSchema.safeParse({...product,code:'produto inválido'}).success).toBe(false))
+  it('valida fase, atividade e entregável', () => {const productId='123e4567-e89b-42d3-a456-426614174000',phaseId='123e4567-e89b-42d3-a456-426614174001';expect(phaseSchema.safeParse({productId,name:'Diagnóstico',sequence:1}).success).toBe(true);expect(activitySchema.safeParse({productId,phaseId,name:'Entrevistas',sequence:1}).success).toBe(true);expect(deliverableSchema.safeParse({productId,phaseId,name:'Relatório',acceptanceCriteria:'Aprovação formal',sequence:1}).success).toBe(true)})
+})
+describe('validação administrativa', () => {it('aceita atualização de status e perfil',()=>expect(userUpdateSchema.safeParse({id:'123e4567-e89b-42d3-a456-426614174000',roleId:'123e4567-e89b-42d3-a456-426614174001',status:'active'}).success).toBe(true));it('normaliza email e exige senha mínima',()=>{const parsed=userCreateSchema.safeParse({name:'Maria Silva',email:' MARIA@EMPRESA.COM ',password:'segura123',roleId:'123e4567-e89b-42d3-a456-426614174001'});expect(parsed.success).toBe(true);if(parsed.success)expect(parsed.data.email).toBe('maria@empresa.com');expect(userCreateSchema.safeParse({name:'Maria',email:'maria@empresa.com',password:'123',roleId:'123e4567-e89b-42d3-a456-426614174001'}).success).toBe(false)})})

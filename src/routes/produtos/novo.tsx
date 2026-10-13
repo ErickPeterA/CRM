@@ -1,0 +1,1 @@
+import {createFileRoute,redirect}from'@tanstack/react-router';import{ProductForm}from'../../components/ProductForm';import{getCurrentUser}from'../../lib/auth.functions';export const Route=createFileRoute('/produtos/novo')({beforeLoad:async()=>{if(!await getCurrentUser())throw redirect({to:'/login'})},component:()=> <ProductForm/>})

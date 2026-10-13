@@ -1,0 +1,71 @@
+import { createFileRoute, Link, notFound, redirect } from '@tanstack/react-router'
+import { useMemo, useState } from 'react'
+import { CrmShell } from '../components/CrmShell'
+import { getCurrentUser } from '../lib/auth.functions'
+import { findOpportunity } from '../lib/crm-pipeline'
+import { processServices } from '../lib/process-services'
+
+const prices: Record<string, number> = {
+  'conciliacao-bancaria': 4800,
+  'contas-a-pagar': 6200,
+  'contas-a-receber': 5900,
+  'emissao-nota-fiscal': 3500,
+  'fechamento-mensal': 7800,
+  'cadastro-fornecedor': 2900,
+}
+
+export const Route = createFileRoute('/crm_/propostas/$opportunityId')({
+  beforeLoad: async () => { if (!await getCurrentUser()) throw redirect({ to: '/login' }) },
+  loader: ({ params }) => {
+    const opportunity = findOpportunity(params.opportunityId)
+    if (!opportunity) throw notFound()
+    return opportunity
+  },
+  component: ProposalJourney,
+})
+
+function ProposalJourney() {
+  const opportunity = Route.useLoaderData()
+  const [step, setStep] = useState(1)
+  const [client, setClient] = useState({ company: opportunity.company, contact: opportunity.contact, email: opportunity.email, phone: opportunity.phone })
+  const [selected, setSelected] = useState<string[]>(['conciliacao-bancaria', 'fechamento-mensal'])
+  const [validity, setValidity] = useState('15 dias')
+  const [payment, setPayment] = useState('50% na aprovação e 50% na entrega')
+  const [notes, setNotes] = useState('Esta proposta contempla o diagnóstico inicial, a execução dos serviços selecionados e a apresentação dos resultados para a liderança.')
+  const selectedServices = useMemo(() => processServices.filter((service) => selected.includes(service.id)), [selected])
+  const total = selectedServices.reduce((sum, service) => sum + (prices[service.id] ?? 0), 0)
+
+  function toggleService(id: string) { setSelected((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]) }
+
+  return <CrmShell title={`Proposta · ${opportunity.company}`} eyebrow="CRM · JORNADA DA PROPOSTA" action={<Link to="/crm" className="rounded-[10px] border border-[#d8dfdb] bg-white px-4 py-2.5 text-[10px] font-bold text-[#5e6c65] no-underline">← Voltar ao pipeline</Link>}>
+    <div className="print:hidden">
+      <section className="mb-6 rounded-2xl border border-[#dfe5e1] bg-white px-6 py-5"><div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-3 max-md:grid-cols-1">{[1, 2, 3].map((number, index) => <JourneyStep key={number} number={number} active={step === number} done={step > number} title={['Dados do cliente', 'Selecionar serviços', 'Revisar e gerar PDF'][index]} onClick={() => setStep(number)} connector={number < 3} />)}</div></section>
+
+      {step === 1 && <section className="grid grid-cols-[1fr_300px] gap-5 max-xl:grid-cols-1"><div className="rounded-[20px] border border-[#dfe5e1] bg-white p-[clamp(24px,4vw,40px)]"><p className="text-[9px] font-extrabold tracking-[1.4px] text-[#7e8b84]">ETAPA 01</p><h2 className="mt-2 text-2xl font-bold tracking-[-.8px]">Confirme os dados do cliente</h2><p className="mt-2 text-[11px] text-[#7c8882]">As informações vieram do cartão da oportunidade e podem ser ajustadas antes de gerar a proposta.</p><div className="mt-8 grid grid-cols-2 gap-4 max-md:grid-cols-1"><Field label="Empresa" value={client.company} onChange={(value) => setClient({ ...client, company: value })} /><Field label="Contato responsável" value={client.contact} onChange={(value) => setClient({ ...client, contact: value })} /><Field label="E-mail" value={client.email} type="email" onChange={(value) => setClient({ ...client, email: value })} /><Field label="Telefone" value={client.phone} onChange={(value) => setClient({ ...client, phone: value })} /></div><div className="mt-8 flex justify-end"><button onClick={() => setStep(2)} className="rounded-[10px] border-0 bg-[#173e32] px-5 py-3 text-[10px] font-bold text-white">Continuar para serviços →</button></div></div><JourneyAside title="Dados conectados"><p>O preenchimento automático reduz retrabalho e mantém a proposta ligada ao histórico da oportunidade.</p><StatusItem label="Cliente localizado" /><StatusItem label="Contato principal vinculado" /><StatusItem label="Oportunidade sincronizada" /></JourneyAside></section>}
+
+      {step === 2 && <section className="grid grid-cols-[1fr_300px] gap-5 max-xl:grid-cols-1"><div className="rounded-[20px] border border-[#dfe5e1] bg-white p-[clamp(24px,4vw,40px)]"><p className="text-[9px] font-extrabold tracking-[1.4px] text-[#7e8b84]">ETAPA 02</p><h2 className="mt-2 text-2xl font-bold tracking-[-.8px]">Selecione os serviços da proposta</h2><p className="mt-2 text-[11px] text-[#7c8882]">Os serviços vêm da biblioteca do módulo de Processos. Selecione tudo que fará parte do escopo comercial.</p><div className="mt-7 grid gap-3">{processServices.map((service) => { const checked = selected.includes(service.id); return <label key={service.id} className={`grid cursor-pointer grid-cols-[22px_1fr_auto] items-start gap-3 rounded-xl border p-4 transition ${checked ? 'border-[#86aa99] bg-[#f3f8f5] shadow-[0_0_0_3px_#86aa9910]' : 'border-[#e0e5e1] bg-white hover:border-[#b7c6be]'}`}><input type="checkbox" checked={checked} onChange={() => toggleService(service.id)} className="mt-0.5 size-4 accent-[#173e32]" /><div><strong className="text-[12px]">{service.name}</strong><p className="mt-1 mb-0 line-clamp-1 text-[9px] text-[#7f8b85]">{service.description}</p><span className="mt-2 inline-block rounded-full bg-[#edf1ee] px-2 py-1 text-[7px] font-bold text-[#65736c]">{service.category}</span></div><strong className="text-[11px] text-[#315f4e]">{formatCurrency(prices[service.id] ?? 0)}</strong></label> })}</div><div className="mt-8 flex justify-between"><button onClick={() => setStep(1)} className="rounded-[10px] border border-[#d8dfdb] bg-white px-5 py-3 text-[10px] font-bold text-[#69766f]">← Voltar</button><button disabled={!selected.length} onClick={() => setStep(3)} className="rounded-[10px] border-0 bg-[#173e32] px-5 py-3 text-[10px] font-bold text-white disabled:opacity-40">Revisar proposta →</button></div></div><aside className="grid content-start gap-4"><div className="rounded-[20px] bg-[#173e32] p-6 text-white"><p className="text-[9px] font-bold tracking-[1.3px] text-[#98b9ad]">RESUMO DO ESCOPO</p><strong className="mt-5 block text-3xl tracking-[-1px]">{selected.length}</strong><small className="text-[9px] text-[#9fbab0]">serviços selecionados</small><div className="mt-6 border-t border-white/10 pt-5"><small className="text-[9px] text-[#9fbab0]">Investimento total</small><strong className="mt-1 block text-xl text-[#b5e77d]">{formatCurrency(total)}</strong></div></div><div className="rounded-2xl border border-[#dce4df] bg-white p-5"><p className="text-[9px] font-extrabold tracking-[1.2px] text-[#7f8b85]">ORIGEM</p><p className="mt-3 text-[10px] leading-5 text-[#738079]">Serviços conectados à base operacional do módulo de Processos.</p><Link to="/processos/servicos" className="mt-3 inline-block text-[9px] font-bold text-[#2d6a53] no-underline">Abrir biblioteca →</Link></div></aside></section>}
+
+      {step === 3 && <section className="grid grid-cols-[340px_1fr] gap-5 max-xl:grid-cols-1"><aside className="grid content-start gap-4"><div className="rounded-[20px] border border-[#dfe5e1] bg-white p-6"><p className="text-[9px] font-extrabold tracking-[1.3px] text-[#7f8b85]">CONDIÇÕES COMERCIAIS</p><label className="mt-5 grid gap-2 text-[9px] font-bold text-[#64716b]">Validade<select value={validity} onChange={(event) => setValidity(event.target.value)} className="rounded-lg border border-[#d8dfdb] bg-white p-3 text-[10px] font-normal"><option>7 dias</option><option>15 dias</option><option>30 dias</option></select></label><label className="mt-4 grid gap-2 text-[9px] font-bold text-[#64716b]">Condição de pagamento<input value={payment} onChange={(event) => setPayment(event.target.value)} className="rounded-lg border border-[#d8dfdb] p-3 text-[10px] font-normal" /></label><label className="mt-4 grid gap-2 text-[9px] font-bold text-[#64716b]">Observações<textarea value={notes} onChange={(event) => setNotes(event.target.value)} className="min-h-28 resize-y rounded-lg border border-[#d8dfdb] p-3 text-[10px] leading-5 font-normal" /></label></div><button onClick={() => window.print()} className="rounded-xl border-0 bg-[#173e32] px-5 py-4 text-[11px] font-extrabold text-white shadow-[0_8px_25px_#173e3225]">Gerar / salvar PDF ↓</button><button onClick={() => setStep(2)} className="rounded-xl border border-[#d8dfdb] bg-white px-5 py-3 text-[10px] font-bold text-[#68756f]">← Alterar serviços</button></aside><ProposalDocument client={client} services={selectedServices} total={total} validity={validity} payment={payment} notes={notes} proposalId={opportunity.id} /></section>}
+    </div>
+
+    <div className="hidden print:block"><ProposalDocument client={client} services={selectedServices} total={total} validity={validity} payment={payment} notes={notes} proposalId={opportunity.id} printable /></div>
+  </CrmShell>
+}
+
+function JourneyStep({ number, title, active, done, onClick, connector }: { number: number; title: string; active: boolean; done: boolean; onClick: () => void; connector: boolean }) { return <>{<button onClick={onClick} className="flex items-center gap-3 border-0 bg-transparent text-left"><span className={`grid size-8 place-items-center rounded-full text-[10px] font-extrabold ${done ? 'bg-[#aee17a] text-[#173e32]' : active ? 'bg-[#173e32] text-white' : 'bg-[#edf0ee] text-[#8b9690]'}`}>{done ? '✓' : number}</span><div><small className="block text-[8px] text-[#929c97]">ETAPA {String(number).padStart(2, '0')}</small><strong className={`text-[10px] ${active ? 'text-[#173e32]' : 'text-[#7d8983]'}`}>{title}</strong></div></button>}{connector && <span className="h-px w-16 bg-[#d9e0dc] max-md:hidden" />}</> }
+function Field({ label, value, onChange, type = 'text' }: { label: string; value: string; onChange: (value: string) => void; type?: string }) { return <label className="grid gap-2 text-[9px] font-bold text-[#637169]">{label}<input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="h-11 rounded-[10px] border border-[#d8dfdb] bg-[#fbfcfb] px-3.5 text-[11px] font-normal outline-none focus:border-[#719b88] focus:ring-4 focus:ring-[#719b8810]" /></label> }
+function JourneyAside({ title, children }: { title: string; children: React.ReactNode }) { return <aside className="rounded-[20px] bg-[#173e32] p-6 text-white"><p className="text-[9px] font-bold tracking-[1.3px] text-[#a1beb3]">{title.toUpperCase()}</p><div className="mt-4 text-[10px] leading-5 text-[#a9c1b8]">{children}</div></aside> }
+function StatusItem({ label }: { label: string }) { return <div className="mt-5 flex items-center gap-2 border-t border-white/10 pt-4"><span className="grid size-5 place-items-center rounded-full bg-[#b3e67b] text-[9px] font-bold text-[#173e32]">✓</span><span className="text-[9px] text-[#c4d5cf]">{label}</span></div> }
+
+function ProposalDocument({ client, services, total, validity, payment, notes, proposalId, printable = false }: { client: { company: string; contact: string; email: string; phone: string }; services: typeof processServices; total: number; validity: string; payment: string; notes: string; proposalId: string; printable?: boolean }) {
+  return <article className={`overflow-hidden border border-[#dfe5e1] bg-white ${printable ? 'min-h-screen border-0' : 'rounded-[20px] shadow-[0_15px_45px_#263b3010]'}`}>
+    <header className="flex items-center justify-between bg-[#173e32] px-9 py-7 text-white"><div className="flex items-center gap-3"><img src="/Logo.png" alt="Nexo" className="size-12 object-contain" /><div><strong className="block text-lg">Nexo</strong><small className="text-[8px] tracking-[1.5px] text-[#9ebbb0]">CONSULTORIA EMPRESARIAL</small></div></div><div className="text-right"><span className="block text-[9px] tracking-[1.3px] text-[#9ebbb0]">PROPOSTA COMERCIAL</span><strong className="mt-1 block text-[11px]">#{proposalId.toUpperCase().slice(0, 12)}</strong></div></header>
+    <div className="p-9"><section className="border-b border-[#e4e9e6] pb-7"><p className="text-[8px] font-extrabold tracking-[1.3px] text-[#87938d]">PREPARADA PARA</p><h2 className="mt-2 text-3xl font-semibold tracking-[-1.2px] text-[#173e32]">{client.company}</h2><p className="mt-2 text-[10px] text-[#738079]">A/C {client.contact} · {client.email} · {client.phone}</p></section>
+      <section className="py-7"><p className="text-[8px] font-extrabold tracking-[1.3px] text-[#87938d]">ESCOPO DE SERVIÇOS</p><div className="mt-4 divide-y divide-[#e9edea]">{services.map((service, index) => <div key={service.id} className="grid grid-cols-[28px_1fr_auto] gap-3 py-4"><span className="text-[9px] font-extrabold text-[#86a397]">{String(index + 1).padStart(2, '0')}</span><div><strong className="text-[11px]">{service.name}</strong><p className="mt-1 mb-0 text-[9px] leading-4 text-[#7c8882]">{service.description}</p></div><strong className="text-[10px]">{formatCurrency(prices[service.id] ?? 0)}</strong></div>)}</div></section>
+      <section className="grid grid-cols-[1fr_230px] gap-8 border-t border-[#e4e9e6] pt-7"><div><p className="text-[8px] font-extrabold tracking-[1.3px] text-[#87938d]">CONDIÇÕES</p><p className="mt-3 text-[9px] leading-5 text-[#68756f]"><strong>Pagamento:</strong> {payment}<br/><strong>Validade:</strong> {validity}</p><p className="mt-4 text-[9px] leading-5 text-[#7c8882]">{notes}</p></div><div className="rounded-xl bg-[#edf4ef] p-5"><small className="text-[8px] text-[#708078]">INVESTIMENTO TOTAL</small><strong className="mt-2 block text-2xl tracking-[-1px] text-[#173e32]">{formatCurrency(total)}</strong><span className="mt-2 block text-[8px] text-[#839089]">Impostos inclusos</span></div></section>
+      <footer className="mt-12 flex justify-between border-t border-[#e4e9e6] pt-5 text-[8px] text-[#909b95]"><span>Proposta gerada pelo Nexo Workspace</span><span>13 de outubro de 2026</span></footer>
+    </div>
+  </article>
+}
+
+function formatCurrency(value: number) { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(value) }

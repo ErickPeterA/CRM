@@ -1,32 +1,15 @@
 import { z } from 'zod'
 
-const optionalText = z.string().trim().max(500).optional().or(z.literal(''))
-
+const optional = (max = 500) => z.string().trim().max(max).optional().or(z.literal(''))
+export const idSchema = z.object({ id: z.uuid() })
 export const clientSchema = z.object({
-  legalName: z.string().trim().min(2).max(200),
-  tradeName: optionalText,
-  type: z.enum(['company', 'person']),
-  taxId: z.string().trim().max(30).optional().or(z.literal('')),
-  email: z.email().optional().or(z.literal('')),
-  phone: z.string().trim().max(40).optional().or(z.literal('')),
-  status: z.enum(['prospect', 'active', 'inactive']),
+  legalName:z.string().trim().min(2).max(200), tradeName:optional(200), type:z.enum(['company','person']), taxId:optional(30), segment:optional(120), companySize:optional(80), city:optional(120), state:z.string().trim().regex(/^[A-Za-z]{2}$/).optional().or(z.literal('')), primaryContactName:optional(160), email:z.email().optional().or(z.literal('')), phone:optional(40), source:optional(120), notes:optional(4000), status:z.enum(['prospect','active','inactive']), ownerUserId:z.uuid().optional().or(z.literal('')),
 })
-
-export const contactSchema = z.object({
-  clientId: z.uuid(),
-  name: z.string().trim().min(2).max(160),
-  jobTitle: optionalText,
-  email: z.email().optional().or(z.literal('')),
-  phone: z.string().trim().max(40).optional().or(z.literal('')),
-  isPrimary: z.boolean().default(false),
-})
-
-export const productSchema = z.object({
-  code: z.string().trim().regex(/^[A-Z0-9][A-Z0-9_-]*$/).max(40),
-  name: z.string().trim().min(2).max(160),
-  area: z.string().trim().min(2).max(120),
-  description: z.string().trim().min(10).max(4000),
-  objective: z.string().trim().min(10).max(4000),
-  defaultDurationDays: z.number().int().positive().optional(),
-  estimatedHours: z.number().nonnegative().optional(),
-})
+export const contactSchema = z.object({ clientId:z.uuid(), name:z.string().trim().min(2).max(160), jobTitle:optional(160), area:optional(120), email:z.email().optional().or(z.literal('')), phone:optional(40), isPrimary:z.boolean().default(false), notes:optional(4000) })
+export const productSchema = z.object({ code:z.string().trim().toUpperCase().regex(/^[A-Z0-9][A-Z0-9_-]*$/).max(40), name:z.string().trim().min(2).max(160), area:z.enum(['Financeiro','Pessoas','Processos','Estratégia']), description:z.string().trim().min(10).max(4000), objective:z.string().trim().min(10).max(4000), defaultDurationDays:z.number().int().positive().optional(), estimatedHours:z.number().nonnegative().optional(), teamProfile:optional(1000), assumptions:optional(4000), exclusions:optional(4000), acceptanceCriteria:optional(4000), checklist:z.array(z.string().trim().min(1).max(500)).default([]), indicators:z.array(z.string().trim().min(1).max(500)).default([]), status:z.enum(['draft','active','inactive']) })
+export const phaseSchema=z.object({id:z.uuid().optional(),productId:z.uuid(),name:z.string().trim().min(2).max(200),description:optional(2000),sequence:z.number().int().positive(),estimatedHours:z.number().nonnegative().optional(),estimatedDurationDays:z.number().int().positive().optional()})
+export const activitySchema=z.object({id:z.uuid().optional(),productId:z.uuid(),phaseId:z.uuid(),name:z.string().trim().min(2).max(200),description:optional(2000),sequence:z.number().int().positive(),estimatedHours:z.number().nonnegative().optional(),estimatedDurationDays:z.number().int().positive().optional(),responsibleProfile:optional(160)})
+export const deliverableSchema=z.object({id:z.uuid().optional(),productId:z.uuid(),phaseId:z.uuid(),name:z.string().trim().min(2).max(200),description:optional(2000),acceptanceCriteria:z.string().trim().min(2).max(4000),sequence:z.number().int().positive()})
+export const templateItemDeleteSchema=z.object({id:z.uuid(),productId:z.uuid(),kind:z.enum(['phase','activity','deliverable'])})
+export const userUpdateSchema=z.object({id:z.uuid(),status:z.enum(['active','inactive']),roleId:z.uuid()})
+export const userCreateSchema=z.object({name:z.string().trim().min(2).max(160),email:z.string().trim().toLowerCase().pipe(z.email()),password:z.string().min(8).max(200),roleId:z.uuid()})
