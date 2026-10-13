@@ -1,4 +1,4 @@
-import { Link, useNavigate, useRouteContext } from '@tanstack/react-router'
+import { Link, useNavigate, useRouteContext, useRouter } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
 import type { ReactNode } from 'react'
 import { logout } from '../lib/auth.functions'
@@ -7,6 +7,7 @@ export function CrmShell({ children, title, eyebrow, action, fluid = false }: { 
   const { user } = useRouteContext({ from: '__root__' })
   const logoutFn = useServerFn(logout)
   const navigate = useNavigate()
+  const router = useRouter()
 
   return <div className="min-h-screen bg-[#f4f5f1] text-[#17221e] lg:grid lg:grid-cols-[260px_1fr] print:block print:bg-white">
     <aside className="fixed inset-y-0 left-0 z-20 flex w-[260px] flex-col bg-[#13382f] px-4 py-5 text-white max-lg:w-[76px] max-lg:px-3 print:hidden">
@@ -22,7 +23,7 @@ export function CrmShell({ children, title, eyebrow, action, fluid = false }: { 
         <NavLink to="/produtos" icon={<BoxIcon />}>Produtos</NavLink>
       </SidebarSection>
       <SidebarSection label="GESTÃO" className="mt-6 max-lg:hidden"><div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[12px] text-[#82a397]"><DocumentIcon /> Propostas <span className="ml-auto rounded-full bg-[#b8e986] px-2 py-0.5 text-[8px] font-bold text-[#214536]">2</span></div><div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[12px] text-[#82a397]"><ChartIcon /> Indicadores <span className="ml-auto text-[8px]">em breve</span></div></SidebarSection>
-      <div className="mt-auto pt-6"><div className="flex items-center gap-2.5 rounded-xl bg-black/10 p-2.5 max-lg:justify-center max-lg:bg-transparent max-lg:p-0"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#d9ae61] text-[10px] font-extrabold text-[#19392f]">{initials(user?.name ?? '')}</span><div className="grid min-w-0 max-lg:hidden"><strong className="truncate text-[10px]">{user?.name}</strong><small className="truncate text-[8px] text-[#7fa295]">{user?.email}</small></div><button className="ml-auto cursor-pointer border-0 bg-transparent text-[10px] text-[#86a79a] max-lg:hidden" onClick={async () => { await logoutFn(); await navigate({ to: '/login' }) }}>Sair</button></div></div>
+      <div className="mt-auto pt-6"><div className="flex items-center gap-2.5 rounded-xl bg-black/10 p-2.5 max-lg:justify-center max-lg:bg-transparent max-lg:p-0"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#d9ae61] text-[10px] font-extrabold text-[#19392f]">{initials(user?.name ?? '')}</span><div className="grid min-w-0 max-lg:hidden"><strong className="truncate text-[10px]">{user?.name}</strong><small className="truncate text-[8px] text-[#7fa295]">{user?.email}</small></div><button className="ml-auto cursor-pointer border-0 bg-transparent text-[10px] text-[#86a79a] max-lg:hidden" onClick={async () => { await logoutFn(); await router.invalidate(); await navigate({ to: '/login' }) }}>Sair</button></div></div>
     </aside>
     <main className="min-w-0 lg:col-start-2 max-lg:ml-[76px] print:m-0">
       <header className="flex min-h-[88px] items-center justify-between border-b border-[#dfe5e1] bg-white/75 px-[clamp(22px,3.5vw,52px)] py-5 backdrop-blur-sm print:hidden"><div><p className="mb-1 text-[9px] font-extrabold tracking-[1.6px] text-[#7b8982]">{eyebrow}</p><h1 className="m-0 text-[clamp(1.5rem,2.6vw,2rem)] font-bold tracking-[-1px] text-[#17372e]">{title}</h1></div>{action}</header>

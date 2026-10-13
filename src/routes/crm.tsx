@@ -1,11 +1,10 @@
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { useMemo, useState, type DragEvent } from 'react'
 import { CrmShell } from '../components/CrmShell'
-import { getCurrentUser } from '../lib/auth.functions'
 import { crmAreas, initialOpportunities, pipelineStages, type Opportunity, type PipelineStage } from '../lib/crm-pipeline'
 
 export const Route = createFileRoute('/crm')({
-  beforeLoad: async () => { if (!await getCurrentUser()) throw redirect({ to: '/login' }) },
+  beforeLoad: ({ context }) => { if (!context.user) throw redirect({ to: '/login' }) },
   component: CrmKanban,
 })
 

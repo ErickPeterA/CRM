@@ -1,61 +1,27 @@
 import { useServerFn } from '@tanstack/react-start'
-import { Link, useNavigate } from '@tanstack/react-router'
-import { useEffect, useState, type FormEvent } from 'react'
-import { AppShell } from './AppShell'
+import { Link, useNavigate, useRouter } from '@tanstack/react-router'
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import { CrmShell } from './CrmShell'
 import { getClient, listActiveUsers, saveClient } from '../lib/catalog.functions'
 import type { ClientRecord, UserSummary } from '../lib/domain.types'
 
-function errorMessage(error: unknown) {
-  const message = error instanceof Error ? error.message : ''
-  if (message.includes('clients_tax_id_unique') || message.includes('duplicate key')) return 'Já existe um cliente ativo com este CPF/CNPJ.'
-  if (message.includes('column') && message.includes('does not exist')) return 'O banco ainda não recebeu a atualização de cadastro. Aplique a migration operacional antes de salvar.'
-  if (message.includes('PERMISSION_DENIED')) return 'Seu usuário não tem permissão para cadastrar clientes.'
-  if (message.includes('AUTHENTICATION_REQUIRED')) return 'Sua sessão expirou. Entre novamente.'
-  return 'Não foi possível salvar o cliente. Verifique os dados e tente novamente.'
-}
+function errorMessage(error: unknown) { const message = error instanceof Error ? error.message : ''; if (message.includes('duplicate key')) return 'Já existe um cliente ativo com este CPF/CNPJ.'; if (message.includes('PERMISSION_DENIED')) return 'Seu usuário não tem permissão para cadastrar clientes.'; if (message.includes('AUTHENTICATION_REQUIRED')) return 'Sua sessão expirou. Entre novamente.'; return 'Não foi possível salvar o cliente. Verifique os dados e tente novamente.' }
 
 export function ClientForm({ id }: { id?: string }) {
-  const save = useServerFn(saveClient)
-  const loadUsers = useServerFn(listActiveUsers)
-  const loadClient = useServerFn(getClient)
-  const navigate = useNavigate()
-  const [client, setClient] = useState<ClientRecord>()
-  const [users, setUsers] = useState<UserSummary[]>([])
-  const [error, setError] = useState('')
-  const [pending, setPending] = useState(false)
-
-  useEffect(() => {
-    loadUsers().then(setUsers).catch(() => setError('Não foi possível carregar os responsáveis.'))
-    if (id) loadClient({ data: { id } }).then(result => setClient(result.client)).catch(() => setError('Cliente não encontrado.'))
-  }, [id, loadClient, loadUsers])
-
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setError('')
-    setPending(true)
-    const form = new FormData(event.currentTarget)
-    try {
-      const result = await save({ data: {
-        id, legalName: String(form.get('legalName') ?? ''), tradeName: String(form.get('tradeName') ?? ''),
-        type: String(form.get('type')) as 'company' | 'person', taxId: String(form.get('taxId') ?? ''),
-        segment: String(form.get('segment') ?? ''), companySize: String(form.get('companySize') ?? ''), city: String(form.get('city') ?? ''), state: String(form.get('state') ?? ''),
-        primaryContactName: String(form.get('primaryContactName') ?? ''), email: String(form.get('email') ?? ''), phone: String(form.get('phone') ?? ''),
-        source: String(form.get('source') ?? ''), notes: String(form.get('notes') ?? ''), status: String(form.get('status')) as 'prospect' | 'active' | 'inactive', ownerUserId: String(form.get('ownerUserId') ?? ''),
-      } })
-      await navigate({ to: '/clientes/$clientId', params: { clientId: result.id } })
-    } catch (cause) {
-      setError(errorMessage(cause))
-    } finally {
-      setPending(false)
-    }
-  }
-
-  return <AppShell><div className="breadcrumbs"><Link to="/clientes">Clientes</Link><span>/</span><span>{id ? 'Editar' : 'Novo'}</span></div><header className="page-head"><div><p className="eyebrow">CRM</p><h1>{id ? 'Editar cliente' : 'Novo cliente'}</h1></div></header><form key={client?.id ?? 'new'} className="crud-form" onSubmit={submit}>
-    <label>Razão social<input name="legalName" defaultValue={client?.legal_name} required minLength={2}/></label><label>Nome fantasia<input name="tradeName" defaultValue={client?.trade_name ?? ''}/></label>
-    <label>Tipo<select name="type" defaultValue={client?.type ?? 'company'}><option value="company">Empresa</option><option value="person">Pessoa</option></select></label><label>CNPJ/CPF<input name="taxId" defaultValue={client?.tax_id ?? ''}/></label>
-    <label>Segmento<input name="segment" defaultValue={client?.segment ?? ''}/></label><label>Porte<input name="companySize" defaultValue={client?.company_size ?? ''}/></label><label>Cidade<input name="city" defaultValue={client?.city ?? ''}/></label><label>Estado<input name="state" maxLength={2} defaultValue={client?.state ?? ''}/></label>
-    <label>Responsável principal<input name="primaryContactName" defaultValue={client?.primary_contact_name ?? ''}/></label><label>E-mail<input name="email" type="email" defaultValue={client?.email ?? ''}/></label><label>Telefone<input name="phone" defaultValue={client?.phone ?? ''}/></label><label>Origem<input name="source" defaultValue={client?.source ?? ''}/></label>
-    <label>Status<select name="status" defaultValue={client?.status ?? 'prospect'}><option value="prospect">Prospect</option><option value="active">Ativo</option><option value="inactive">Inativo</option></select></label><label>Comercial/consultor responsável<select name="ownerUserId" defaultValue={client?.owner_user_id ?? ''}><option value="">Não definido</option>{users.map(user => <option value={user.id} key={user.id}>{user.name}</option>)}</select></label><label className="wide">Observações<textarea name="notes" defaultValue={client?.notes ?? ''}/></label>
-    {error && <p className="form-error wide" role="alert">{error}</p>}<div className="form-actions wide"><Link className="outline-button" to={id ? '/clientes/$clientId' : '/clientes'} params={id ? { clientId: id } : undefined}>Cancelar</Link><button className="primary-button" disabled={pending}>{pending ? 'Salvando…' : 'Salvar cliente'}</button></div>
-  </form></AppShell>
+  const save = useServerFn(saveClient); const loadUsers = useServerFn(listActiveUsers); const loadClient = useServerFn(getClient); const navigate = useNavigate(); const router = useRouter()
+  const [client, setClient] = useState<ClientRecord>(); const [users, setUsers] = useState<UserSummary[]>([]); const [error, setError] = useState(''); const [pending, setPending] = useState(false)
+  useEffect(() => { loadUsers().then(setUsers).catch(() => setError('Não foi possível carregar os responsáveis.')); if (id) loadClient({ data: { id } }).then((result) => setClient(result.client)).catch(() => setError('Cliente não encontrado.')) }, [id, loadClient, loadUsers])
+  async function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); setError(''); setPending(true); const form = new FormData(event.currentTarget); try { const result = await save({ data: { id, legalName: String(form.get('legalName') ?? ''), tradeName: String(form.get('tradeName') ?? ''), type: String(form.get('type')) as 'company' | 'person', taxId: String(form.get('taxId') ?? ''), segment: String(form.get('segment') ?? ''), companySize: String(form.get('companySize') ?? ''), city: String(form.get('city') ?? ''), state: String(form.get('state') ?? ''), primaryContactName: String(form.get('primaryContactName') ?? ''), email: String(form.get('email') ?? ''), phone: String(form.get('phone') ?? ''), source: String(form.get('source') ?? ''), notes: String(form.get('notes') ?? ''), status: String(form.get('status')) as 'prospect' | 'active' | 'inactive', ownerUserId: String(form.get('ownerUserId') ?? '') } }); await router.invalidate(); await navigate({ to: '/clientes/$clientId', params: { clientId: result.id } }) } catch (cause) { setError(errorMessage(cause)) } finally { setPending(false) } }
+  const input = 'mt-2 w-full rounded-xl border border-[#dce3de] bg-[#fbfcfa] px-3.5 py-3 text-sm text-[#203d34] outline-none transition focus:border-[#65a087] focus:bg-white focus:ring-3 focus:ring-[#65a087]/10'
+  return <CrmShell title={id ? 'Editar cliente' : 'Novo cliente'} eyebrow="CRM · CADASTRO" action={<Link to={id ? '/clientes/$clientId' : '/clientes'} params={id ? { clientId: id } : undefined} className="text-xs font-bold text-[#557268] no-underline">← Voltar</Link>}>
+    {id && !client && !error ? <div className="rounded-2xl border border-[#e0e5e1] bg-white p-10 text-center text-sm text-[#74837c]">Carregando cliente...</div> : <form key={client?.id ?? 'new'} onSubmit={submit} className="overflow-hidden rounded-2xl border border-[#dfe5df] bg-white shadow-[0_14px_38px_rgba(25,57,47,.05)]"><div className="border-b border-[#edf0ed] px-6 py-5"><h2 className="text-base text-[#1d4035]">Dados do relacionamento</h2><p className="mt-1 text-[11px] text-[#819087]">Centralize os dados comerciais e de contato do cliente.</p></div><div className="grid gap-5 p-6 md:grid-cols-2">
+      <Field label="Razão social"><input className={input} name="legalName" defaultValue={client?.legal_name} required minLength={2} /></Field><Field label="Nome fantasia"><input className={input} name="tradeName" defaultValue={client?.trade_name ?? ''} /></Field>
+      <Field label="Tipo"><select className={input} name="type" defaultValue={client?.type ?? 'company'}><option value="company">Empresa</option><option value="person">Pessoa</option></select></Field><Field label="CNPJ / CPF"><input className={input} name="taxId" defaultValue={client?.tax_id ?? ''} /></Field>
+      <Field label="Segmento"><input className={input} name="segment" defaultValue={client?.segment ?? ''} /></Field><Field label="Porte"><input className={input} name="companySize" defaultValue={client?.company_size ?? ''} /></Field><Field label="Cidade"><input className={input} name="city" defaultValue={client?.city ?? ''} /></Field><Field label="Estado"><input className={input} name="state" maxLength={2} defaultValue={client?.state ?? ''} /></Field>
+      <Field label="Responsável principal"><input className={input} name="primaryContactName" defaultValue={client?.primary_contact_name ?? ''} /></Field><Field label="E-mail"><input className={input} name="email" type="email" defaultValue={client?.email ?? ''} /></Field><Field label="Telefone"><input className={input} name="phone" defaultValue={client?.phone ?? ''} /></Field><Field label="Origem"><input className={input} name="source" defaultValue={client?.source ?? ''} /></Field>
+      <Field label="Status"><select className={input} name="status" defaultValue={client?.status ?? 'prospect'}><option value="prospect">Prospect</option><option value="active">Ativo</option><option value="inactive">Inativo</option></select></Field><Field label="Comercial / consultor"><select className={input} name="ownerUserId" defaultValue={client?.owner_user_id ?? ''}><option value="">Não definido</option>{users.map((user) => <option value={user.id} key={user.id}>{user.name}</option>)}</select></Field>
+      <Field label="Observações" wide><textarea className={`${input} min-h-28 resize-y`} name="notes" defaultValue={client?.notes ?? ''} /></Field>{error && <p className="md:col-span-2 rounded-xl bg-[#fff0ed] px-4 py-3 text-xs text-[#a04435]" role="alert">{error}</p>}
+    </div><div className="flex justify-end gap-3 border-t border-[#edf0ed] bg-[#fafbf9] px-6 py-4"><Link to={id ? '/clientes/$clientId' : '/clientes'} params={id ? { clientId: id } : undefined} className="rounded-xl border border-[#d6ded9] bg-white px-4 py-2.5 text-xs font-bold text-[#50665e] no-underline">Cancelar</Link><button className="rounded-xl border-0 bg-[#173f34] px-5 py-2.5 text-xs font-bold text-white disabled:opacity-60" disabled={pending}>{pending ? 'Salvando...' : 'Salvar cliente'}</button></div></form>}
+  </CrmShell>
 }
+function Field({ label, children, wide = false }: { label: string; children: ReactNode; wide?: boolean }) { return <label className={`${wide ? 'md:col-span-2' : ''} text-[10px] font-bold uppercase tracking-[.8px] text-[#65766e]`}>{label}{children}</label> }

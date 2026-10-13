@@ -1,10 +1,9 @@
 import { createFileRoute, Link, notFound, redirect } from '@tanstack/react-router'
 import { ProcessShell } from '../../../components/ProcessShell'
-import { getCurrentUser } from '../../../lib/auth.functions'
 import { processServices } from '../../../lib/process-services'
 
 export const Route = createFileRoute('/processos/servicos/$serviceId')({
-  beforeLoad: async () => { if (!await getCurrentUser()) throw redirect({ to: '/login' }) },
+  beforeLoad: ({ context }) => { if (!context.user) throw redirect({ to: '/login' }) },
   loader: ({ params }) => {
     const service = processServices.find((item) => item.id === params.serviceId)
     if (!service) throw notFound()

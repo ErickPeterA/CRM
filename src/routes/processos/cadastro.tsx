@@ -1,10 +1,9 @@
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
 import { ProcessShell } from '../../components/ProcessShell'
-import { getCurrentUser } from '../../lib/auth.functions'
 
 export const Route = createFileRoute('/processos/cadastro')({
-  beforeLoad: async () => { if (!await getCurrentUser()) throw redirect({ to: '/login' }) },
+  beforeLoad: ({ context }) => { if (!context.user) throw redirect({ to: '/login' }) },
   component: ProcessImport,
 })
 

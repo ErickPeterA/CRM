@@ -1,10 +1,10 @@
-import { createFileRoute, Link, redirect, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect, useNavigate, useRouter } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
-import { logout, getCurrentUser } from '../lib/auth.functions'
+import { logout } from '../lib/auth.functions'
 
 export const Route = createFileRoute('/')({
-  beforeLoad: async () => {
-    const user = await getCurrentUser()
+  beforeLoad: ({ context }) => {
+    const { user } = context
     if (!user) throw redirect({ to: '/login' })
     return { user }
   },
@@ -22,6 +22,7 @@ const modules = [
 function ModuleHub() {
   const { user } = Route.useRouteContext()
   const navigate = useNavigate()
+  const router = useRouter()
   const logoutFn = useServerFn(logout)
   const firstName = user.name.split(' ')[0]
 
@@ -37,7 +38,7 @@ function ModuleHub() {
         <div className="flex items-center gap-3">
           <span className="grid size-9 place-items-center rounded-full bg-[#d9e8de] text-[11px] font-extrabold text-[#255344]">{initials(user.name)}</span>
           <div className="grid gap-0.5 max-md:hidden"><strong className="text-xs">{user.name}</strong><small className="text-[10px] text-[#74817b]">{user.email}</small></div>
-          <button className="ml-3 cursor-pointer rounded-lg border border-[#d6ddd8] bg-white/60 px-2 py-1 text-[11px] text-[#50605a] transition hover:bg-white max-md:ml-0" type="button" onClick={async () => { await logoutFn(); await navigate({ to: '/login' }) }}>Sair</button>
+          <button className="ml-3 cursor-pointer rounded-lg border border-[#d6ddd8] bg-white/60 px-2 py-1 text-[11px] text-[#50605a] transition hover:bg-white max-md:ml-0" type="button" onClick={async () => { await logoutFn(); await router.invalidate(); await navigate({ to: '/login' }) }}>Sair</button>
         </div>
       </header>
 

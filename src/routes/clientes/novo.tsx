@@ -1,4 +1,3 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { ClientForm } from '../../components/Forms'
-import { getCurrentUser } from '../../lib/auth.functions'
-export const Route=createFileRoute('/clientes/novo')({beforeLoad:async()=>{if(!await getCurrentUser())throw redirect({to:'/login'})},component:()=> <ClientForm />})
+export const Route=createFileRoute('/clientes/novo')({beforeLoad:({context})=>{if(!context.user)throw redirect({to:'/login'})},component:()=> <ClientForm />})

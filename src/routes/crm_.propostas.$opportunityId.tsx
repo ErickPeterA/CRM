@@ -1,7 +1,6 @@
 import { createFileRoute, Link, notFound, redirect } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import { CrmShell } from '../components/CrmShell'
-import { getCurrentUser } from '../lib/auth.functions'
 import { findOpportunity } from '../lib/crm-pipeline'
 import { processServices } from '../lib/process-services'
 
@@ -15,7 +14,7 @@ const prices: Record<string, number> = {
 }
 
 export const Route = createFileRoute('/crm_/propostas/$opportunityId')({
-  beforeLoad: async () => { if (!await getCurrentUser()) throw redirect({ to: '/login' }) },
+  beforeLoad: ({ context }) => { if (!context.user) throw redirect({ to: '/login' }) },
   loader: ({ params }) => {
     const opportunity = findOpportunity(params.opportunityId)
     if (!opportunity) throw notFound()

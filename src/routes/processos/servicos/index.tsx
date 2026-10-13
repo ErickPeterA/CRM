@@ -1,11 +1,10 @@
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import { ProcessShell } from '../../../components/ProcessShell'
-import { getCurrentUser } from '../../../lib/auth.functions'
 import { processServices, serviceCategories } from '../../../lib/process-services'
 
 export const Route = createFileRoute('/processos/servicos/')({
-  beforeLoad: async () => { if (!await getCurrentUser()) throw redirect({ to: '/login' }) },
+  beforeLoad: ({ context }) => { if (!context.user) throw redirect({ to: '/login' }) },
   component: ServicesLibrary,
 })
 

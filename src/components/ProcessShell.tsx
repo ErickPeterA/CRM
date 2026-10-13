@@ -1,4 +1,4 @@
-import { Link, useNavigate, useRouteContext } from '@tanstack/react-router'
+import { Link, useNavigate, useRouteContext, useRouter } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
 import type { ReactNode } from 'react'
 import { logout } from '../lib/auth.functions'
@@ -7,6 +7,7 @@ export function ProcessShell({ children, title, eyebrow, action }: { children: R
   const { user } = useRouteContext({ from: '__root__' })
   const logoutFn = useServerFn(logout)
   const navigate = useNavigate()
+  const router = useRouter()
 
   return <div className="min-h-screen bg-[#f5f6f2] text-[#17221e] lg:grid lg:grid-cols-[268px_1fr]">
     <aside className="fixed inset-y-0 left-0 z-20 flex w-[268px] flex-col overflow-y-auto bg-[#12382e] px-4 py-5 text-white max-lg:w-[78px] max-lg:px-3">
@@ -27,7 +28,7 @@ export function ProcessShell({ children, title, eyebrow, action }: { children: R
       </SidebarSection>
 
       <div className="mt-auto pt-6">
-        <div className="flex items-center gap-2.5 rounded-xl bg-black/10 p-2.5 max-lg:justify-center max-lg:bg-transparent max-lg:p-0"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#d9ae61] text-[10px] font-extrabold text-[#19392f]">{initials(user?.name ?? '')}</span><div className="grid min-w-0 max-lg:hidden"><strong className="truncate text-[10px]">{user?.name}</strong><small className="truncate text-[8px] text-[#7fa295]">{user?.email}</small></div><button title="Sair" className="ml-auto cursor-pointer border-0 bg-transparent text-[10px] text-[#86a79a] max-lg:hidden" onClick={async () => { await logoutFn(); await navigate({ to: '/login' }) }}>Sair</button></div>
+        <div className="flex items-center gap-2.5 rounded-xl bg-black/10 p-2.5 max-lg:justify-center max-lg:bg-transparent max-lg:p-0"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#d9ae61] text-[10px] font-extrabold text-[#19392f]">{initials(user?.name ?? '')}</span><div className="grid min-w-0 max-lg:hidden"><strong className="truncate text-[10px]">{user?.name}</strong><small className="truncate text-[8px] text-[#7fa295]">{user?.email}</small></div><button title="Sair" className="ml-auto cursor-pointer border-0 bg-transparent text-[10px] text-[#86a79a] max-lg:hidden" onClick={async () => { await logoutFn(); await router.invalidate(); await navigate({ to: '/login' }) }}>Sair</button></div>
       </div>
     </aside>
 

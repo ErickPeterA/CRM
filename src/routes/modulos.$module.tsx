@@ -1,5 +1,4 @@
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
-import { getCurrentUser } from '../lib/auth.functions'
 
 const moduleInfo: Record<string, { name: string; eyebrow: string; description: string; items: string[] }> = {
   processos: { name: 'Processos', eyebrow: 'OPERAÇÃO E GOVERNANÇA', description: 'Desenhe, organize e acompanhe os processos que sustentam sua operação.', items: ['Visão geral', 'Mapa de processos', 'Procedimentos', 'Indicadores'] },
@@ -9,8 +8,8 @@ const moduleInfo: Record<string, { name: string; eyebrow: string; description: s
 }
 
 export const Route = createFileRoute('/modulos/$module')({
-  beforeLoad: async () => {
-    const user = await getCurrentUser()
+  beforeLoad: ({ context }) => {
+    const { user } = context
     if (!user) throw redirect({ to: '/login' })
     return { user }
   },

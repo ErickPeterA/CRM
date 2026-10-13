@@ -1,14 +1,14 @@
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate, useRouter } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { login } from '../lib/auth.functions'
-import { getCurrentUser } from '../lib/auth.functions'
 
-export const Route = createFileRoute('/login')({ beforeLoad: async () => { if (await getCurrentUser()) throw redirect({ to: '/' }) }, component: LoginPage })
+export const Route = createFileRoute('/login')({ beforeLoad: ({ context }) => { if (context.user) throw redirect({ to: '/' }) }, component: LoginPage })
 
 function LoginPage() {
   const loginFn = useServerFn(login)
   const navigate = useNavigate()
+  const router = useRouter()
   const [error, setError] = useState('')
   const [pending, setPending] = useState(false)
 
@@ -30,7 +30,7 @@ function LoginPage() {
           try {
             const result = await loginFn({ data: { email: String(form.get('email')), password: String(form.get('password')) } })
             if (!result.ok) setError(result.message)
-            else await navigate({ to: '/' })
+            else { await router.invalidate(); await navigate({ to: '/' }) }
           } catch { setError('Não foi possível entrar. Tente novamente.') }
           finally { setPending(false) }
         }}>

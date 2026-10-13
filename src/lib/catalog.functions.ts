@@ -68,7 +68,28 @@ export const archiveContact = createServerFn({ method:'POST' }).validator(idSche
 
 export const listProducts = createServerFn({ method:'GET' }).handler(async () => { await requirePermission('catalog.read'); return (await query<ProductRecord>(`select p.*,(select count(*) from product_template_phases ph join product_template_versions v on v.id=ph.template_version_id where v.product_id=p.id and v.version=(select max(version) from product_template_versions where product_id=p.id))::int phases_count from consulting_products p where p.archived_at is null order by p.created_at desc`)).rows })
 export const getProduct = createServerFn({ method:'GET' }).validator(idSchema).handler(async ({ data }) => {
-  await requirePermission('catalog.read'); const product=(await query<ProductRecord>('select * from consulting_products where id=$1 and archived_at is null',[data.id])).rows[0]; if(!product)throw new Error('NOT_FOUND'); const template=(await query<TemplateVersion>('select * from product_template_versions where product_id=$1 order by version desc limit 1',[data.id])).rows[0]; if(!template)throw new Error('TEMPLATE_NOT_FOUND'); const phases=(await query<Omit<TemplatePhase,'activities'|'deliverables'>>('select * from product_template_phases where template_version_id=$1 order by sequence',[template.id])).rows; const complete:TemplatePhase[]=[]; for(const phase of phases){const[activities,deliverables]=await Promise.all([query<TemplateActivity>('select * from product_template_activities where phase_id=$1 order by sequence',[phase.id]),query<TemplateDeliverable>('select * from product_template_deliverables where phase_id=$1 order by sequence',[phase.id])]);complete.push({...phase,activities:activities.rows,deliverables:deliverables.rows})} return {product,template,phases:complete}
+  await requirePermission('catalog.read')
+  const [productResult, templateResult] = await Promise.all([
+    query<ProductRecord>('select * from consulting_products where id=$1 and archived_at is null',[data.id]),
+    query<TemplateVersion>('select * from product_template_versions where product_id=$1 order by version desc limit 1',[data.id]),
+  ])
+  const product = productResult.rows[0]
+  if (!product) throw new Error('NOT_FOUND')
+  const template = templateResult.rows[0]
+  if (!template) throw new Error('TEMPLATE_NOT_FOUND')
+  const phases = (await query<Omit<TemplatePhase,'activities'|'deliverables'>>('select * from product_template_phases where template_version_id=$1 order by sequence',[template.id])).rows
+  if (!phases.length) return { product, template, phases: [] as TemplatePhase[] }
+  const phaseIds = phases.map((phase) => phase.id)
+  const [activities, deliverables] = await Promise.all([
+    query<TemplateActivity>('select * from product_template_activities where phase_id = any($1::uuid[]) order by phase_id,sequence',[phaseIds]),
+    query<TemplateDeliverable>('select * from product_template_deliverables where phase_id = any($1::uuid[]) order by phase_id,sequence',[phaseIds]),
+  ])
+  const complete = phases.map((phase) => ({
+    ...phase,
+    activities: activities.rows.filter((item) => item.phase_id === phase.id),
+    deliverables: deliverables.rows.filter((item) => item.phase_id === phase.id),
+  }))
+  return { product, template, phases: complete }
 })
 export const saveProduct = createServerFn({ method:'POST' }).validator(productInput).handler(async ({ data }) => {
   const actor=await requirePermission('catalog.write'); return transaction(async client=>{let id=data.id;if(id){const old=(await client.query<ProductRecord>('select * from consulting_products where id=$1 and archived_at is null for update',[id])).rows[0];if(!old)throw new Error('NOT_FOUND');await client.query('update consulting_products set code=$1,name=$2,area=$3,description=$4,objective=$5,default_duration_days=$6,estimated_hours=$7,team_profile=$8,assumptions=$9,exclusions=$10,status=$11,updated_at=now() where id=$12',[data.code,data.name,data.area,data.description,data.objective,data.defaultDurationDays??null,data.estimatedHours??null,data.teamProfile||null,data.assumptions||null,data.exclusions||null,data.status,id]);const template=await editableTemplate(client,id);await client.query('update product_template_versions set acceptance_criteria=$1,checklist=$2::jsonb,indicators=$3::jsonb where id=$4',[data.acceptanceCriteria||null,JSON.stringify(data.checklist),JSON.stringify(data.indicators),template.id]);await audit(client,actor.id,'consulting_product',id,'updated',{name:old.name,status:old.status},{name:data.name,status:data.status})}else{const created=await client.query<{id:string}>('insert into consulting_products(code,name,area,description,objective,default_duration_days,estimated_hours,team_profile,assumptions,exclusions,status,created_by)values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)returning id',[data.code,data.name,data.area,data.description,data.objective,data.defaultDurationDays??null,data.estimatedHours??null,data.teamProfile||null,data.assumptions||null,data.exclusions||null,data.status,actor.id]);id=created.rows[0].id;await client.query('insert into product_template_versions(product_id,version,acceptance_criteria,checklist,indicators,created_by)values($1,1,$2,$3::jsonb,$4::jsonb,$5)',[id,data.acceptanceCriteria||null,JSON.stringify(data.checklist),JSON.stringify(data.indicators),actor.id]);await audit(client,actor.id,'consulting_product',id,'created',null,{name:data.name,status:data.status})}return{id}})

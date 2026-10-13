@@ -7,6 +7,9 @@ import { getCurrentUser } from '../lib/auth.functions'
 
 export const Route = createRootRoute({
   beforeLoad: async () => ({ user: await getCurrentUser() }),
+  // Reuse the authenticated user while navigating, but periodically recheck
+  // the session so revoked access is not kept indefinitely in the browser.
+  staleTime: 5 * 60_000,
   head: () => ({
     meta: [
       { charSet: 'utf-8' },
