@@ -16,9 +16,12 @@ import { Route as HealthRouteImport } from './routes/health'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AdminPerfisRouteImport } from './routes/admin/perfis'
 import { Route as AdminUsuariosRouteImport } from './routes/admin/usuarios'
+import { Route as AssinarTokenRouteImport } from './routes/assinar.$token'
 import { Route as ClientesIndexRouteImport } from './routes/clientes/index'
 import { Route as ClientesClientIdRouteImport } from './routes/clientes/$clientId'
 import { Route as ClientesNovoRouteImport } from './routes/clientes/novo'
+import { Route as ContratosIndexRouteImport } from './routes/contratos/index'
+import { Route as ContratosContractIdRouteImport } from './routes/contratos/$contractId'
 import { Route as ModulosModuleRouteImport } from './routes/modulos.$module'
 import { Route as ProcessosIndexRouteImport } from './routes/processos/index'
 import { Route as ProcessosCadastroRouteImport } from './routes/processos/cadastro'
@@ -26,6 +29,7 @@ import { Route as ProdutosIndexRouteImport } from './routes/produtos/index'
 import { Route as ProdutosProductIdRouteImport } from './routes/produtos/$productId'
 import { Route as ProdutosNovoRouteImport } from './routes/produtos/novo'
 import { Route as ClientesClientIdEditarRouteImport } from './routes/clientes/$clientId/editar'
+import { Route as CrmPropostasIndexRouteImport } from './routes/crm_.propostas.index'
 import { Route as CrmPropostasOpportunityIdRouteImport } from './routes/crm_.propostas.$opportunityId'
 import { Route as ProcessosServicosIndexRouteImport } from './routes/processos/servicos/index'
 import { Route as ProcessosServicosServiceIdRouteImport } from './routes/processos/servicos/$serviceId'
@@ -66,6 +70,11 @@ const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
   path: '/admin/usuarios',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AssinarTokenRoute = AssinarTokenRouteImport.update({
+  id: '/assinar/$token',
+  path: '/assinar/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ClientesIndexRoute = ClientesIndexRouteImport.update({
   id: '/clientes/',
   path: '/clientes/',
@@ -79,6 +88,16 @@ const ClientesClientIdRoute = ClientesClientIdRouteImport.update({
 const ClientesNovoRoute = ClientesNovoRouteImport.update({
   id: '/clientes/novo',
   path: '/clientes/novo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContratosIndexRoute = ContratosIndexRouteImport.update({
+  id: '/contratos/',
+  path: '/contratos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContratosContractIdRoute = ContratosContractIdRouteImport.update({
+  id: '/contratos/$contractId',
+  path: '/contratos/$contractId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ModulosModuleRoute = ModulosModuleRouteImport.update({
@@ -116,6 +135,11 @@ const ClientesClientIdEditarRoute = ClientesClientIdEditarRouteImport.update({
   path: '/editar',
   getParentRoute: () => ClientesClientIdRoute,
 } as any)
+const CrmPropostasIndexRoute = CrmPropostasIndexRouteImport.update({
+  id: '/crm_/propostas/',
+  path: '/crm/propostas/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CrmPropostasOpportunityIdRoute =
   CrmPropostasOpportunityIdRouteImport.update({
     id: '/crm_/propostas/$opportunityId',
@@ -147,19 +171,23 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/admin/perfis': typeof AdminPerfisRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/assinar/$token': typeof AssinarTokenRoute
   '/clientes/$clientId': typeof ClientesClientIdRouteWithChildren
   '/clientes/novo': typeof ClientesNovoRoute
+  '/contratos/$contractId': typeof ContratosContractIdRoute
   '/modulos/$module': typeof ModulosModuleRoute
   '/processos/cadastro': typeof ProcessosCadastroRoute
   '/produtos/$productId': typeof ProdutosProductIdRouteWithChildren
   '/produtos/novo': typeof ProdutosNovoRoute
   '/clientes/': typeof ClientesIndexRoute
+  '/contratos/': typeof ContratosIndexRoute
   '/processos/': typeof ProcessosIndexRoute
   '/produtos/': typeof ProdutosIndexRoute
   '/clientes/$clientId/editar': typeof ClientesClientIdEditarRoute
   '/crm/propostas/$opportunityId': typeof CrmPropostasOpportunityIdRoute
   '/processos/servicos/$serviceId': typeof ProcessosServicosServiceIdRoute
   '/produtos/$productId/editar': typeof ProdutosProductIdEditarRoute
+  '/crm/propostas/': typeof CrmPropostasIndexRoute
   '/processos/servicos/': typeof ProcessosServicosIndexRoute
 }
 export interface FileRoutesByTo {
@@ -170,19 +198,23 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/admin/perfis': typeof AdminPerfisRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/assinar/$token': typeof AssinarTokenRoute
   '/clientes/$clientId': typeof ClientesClientIdRouteWithChildren
   '/clientes/novo': typeof ClientesNovoRoute
+  '/contratos/$contractId': typeof ContratosContractIdRoute
   '/modulos/$module': typeof ModulosModuleRoute
   '/processos/cadastro': typeof ProcessosCadastroRoute
   '/produtos/$productId': typeof ProdutosProductIdRouteWithChildren
   '/produtos/novo': typeof ProdutosNovoRoute
   '/clientes': typeof ClientesIndexRoute
+  '/contratos': typeof ContratosIndexRoute
   '/processos': typeof ProcessosIndexRoute
   '/produtos': typeof ProdutosIndexRoute
   '/clientes/$clientId/editar': typeof ClientesClientIdEditarRoute
   '/crm/propostas/$opportunityId': typeof CrmPropostasOpportunityIdRoute
   '/processos/servicos/$serviceId': typeof ProcessosServicosServiceIdRoute
   '/produtos/$productId/editar': typeof ProdutosProductIdEditarRoute
+  '/crm/propostas': typeof CrmPropostasIndexRoute
   '/processos/servicos': typeof ProcessosServicosIndexRoute
 }
 export interface FileRoutesById {
@@ -194,19 +226,23 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/admin/perfis': typeof AdminPerfisRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/assinar/$token': typeof AssinarTokenRoute
   '/clientes/$clientId': typeof ClientesClientIdRouteWithChildren
   '/clientes/novo': typeof ClientesNovoRoute
+  '/contratos/$contractId': typeof ContratosContractIdRoute
   '/modulos/$module': typeof ModulosModuleRoute
   '/processos/cadastro': typeof ProcessosCadastroRoute
   '/produtos/$productId': typeof ProdutosProductIdRouteWithChildren
   '/produtos/novo': typeof ProdutosNovoRoute
   '/clientes/': typeof ClientesIndexRoute
+  '/contratos/': typeof ContratosIndexRoute
   '/processos/': typeof ProcessosIndexRoute
   '/produtos/': typeof ProdutosIndexRoute
   '/clientes/$clientId/editar': typeof ClientesClientIdEditarRoute
   '/crm_/propostas/$opportunityId': typeof CrmPropostasOpportunityIdRoute
   '/processos/servicos/$serviceId': typeof ProcessosServicosServiceIdRoute
   '/produtos/$productId/editar': typeof ProdutosProductIdEditarRoute
+  '/crm_/propostas/': typeof CrmPropostasIndexRoute
   '/processos/servicos/': typeof ProcessosServicosIndexRoute
 }
 export interface FileRouteTypes {
@@ -219,19 +255,23 @@ export interface FileRouteTypes {
     | '/login'
     | '/admin/perfis'
     | '/admin/usuarios'
+    | '/assinar/$token'
     | '/clientes/$clientId'
     | '/clientes/novo'
+    | '/contratos/$contractId'
     | '/modulos/$module'
     | '/processos/cadastro'
     | '/produtos/$productId'
     | '/produtos/novo'
     | '/clientes/'
+    | '/contratos/'
     | '/processos/'
     | '/produtos/'
     | '/clientes/$clientId/editar'
     | '/crm/propostas/$opportunityId'
     | '/processos/servicos/$serviceId'
     | '/produtos/$productId/editar'
+    | '/crm/propostas/'
     | '/processos/servicos/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -242,19 +282,23 @@ export interface FileRouteTypes {
     | '/login'
     | '/admin/perfis'
     | '/admin/usuarios'
+    | '/assinar/$token'
     | '/clientes/$clientId'
     | '/clientes/novo'
+    | '/contratos/$contractId'
     | '/modulos/$module'
     | '/processos/cadastro'
     | '/produtos/$productId'
     | '/produtos/novo'
     | '/clientes'
+    | '/contratos'
     | '/processos'
     | '/produtos'
     | '/clientes/$clientId/editar'
     | '/crm/propostas/$opportunityId'
     | '/processos/servicos/$serviceId'
     | '/produtos/$productId/editar'
+    | '/crm/propostas'
     | '/processos/servicos'
   id:
     | '__root__'
@@ -265,19 +309,23 @@ export interface FileRouteTypes {
     | '/login'
     | '/admin/perfis'
     | '/admin/usuarios'
+    | '/assinar/$token'
     | '/clientes/$clientId'
     | '/clientes/novo'
+    | '/contratos/$contractId'
     | '/modulos/$module'
     | '/processos/cadastro'
     | '/produtos/$productId'
     | '/produtos/novo'
     | '/clientes/'
+    | '/contratos/'
     | '/processos/'
     | '/produtos/'
     | '/clientes/$clientId/editar'
     | '/crm_/propostas/$opportunityId'
     | '/processos/servicos/$serviceId'
     | '/produtos/$productId/editar'
+    | '/crm_/propostas/'
     | '/processos/servicos/'
   fileRoutesById: FileRoutesById
 }
@@ -289,17 +337,21 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   AdminPerfisRoute: typeof AdminPerfisRoute
   AdminUsuariosRoute: typeof AdminUsuariosRoute
+  AssinarTokenRoute: typeof AssinarTokenRoute
   ClientesClientIdRoute: typeof ClientesClientIdRouteWithChildren
   ClientesNovoRoute: typeof ClientesNovoRoute
+  ContratosContractIdRoute: typeof ContratosContractIdRoute
   ModulosModuleRoute: typeof ModulosModuleRoute
   ProcessosCadastroRoute: typeof ProcessosCadastroRoute
   ProdutosProductIdRoute: typeof ProdutosProductIdRouteWithChildren
   ProdutosNovoRoute: typeof ProdutosNovoRoute
   ClientesIndexRoute: typeof ClientesIndexRoute
+  ContratosIndexRoute: typeof ContratosIndexRoute
   ProcessosIndexRoute: typeof ProcessosIndexRoute
   ProdutosIndexRoute: typeof ProdutosIndexRoute
   CrmPropostasOpportunityIdRoute: typeof CrmPropostasOpportunityIdRoute
   ProcessosServicosServiceIdRoute: typeof ProcessosServicosServiceIdRoute
+  CrmPropostasIndexRoute: typeof CrmPropostasIndexRoute
   ProcessosServicosIndexRoute: typeof ProcessosServicosIndexRoute
 }
 
@@ -354,6 +406,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsuariosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/assinar/$token': {
+      id: '/assinar/$token'
+      path: '/assinar/$token'
+      fullPath: '/assinar/$token'
+      preLoaderRoute: typeof AssinarTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/clientes/': {
       id: '/clientes/'
       path: '/clientes'
@@ -373,6 +432,20 @@ declare module '@tanstack/react-router' {
       path: '/clientes/novo'
       fullPath: '/clientes/novo'
       preLoaderRoute: typeof ClientesNovoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contratos/': {
+      id: '/contratos/'
+      path: '/contratos'
+      fullPath: '/contratos/'
+      preLoaderRoute: typeof ContratosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contratos/$contractId': {
+      id: '/contratos/$contractId'
+      path: '/contratos/$contractId'
+      fullPath: '/contratos/$contractId'
+      preLoaderRoute: typeof ContratosContractIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/modulos/$module': {
@@ -423,6 +496,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/clientes/$clientId/editar'
       preLoaderRoute: typeof ClientesClientIdEditarRouteImport
       parentRoute: typeof ClientesClientIdRoute
+    }
+    '/crm_/propostas/': {
+      id: '/crm_/propostas/'
+      path: '/crm/propostas'
+      fullPath: '/crm/propostas/'
+      preLoaderRoute: typeof CrmPropostasIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/crm_/propostas/$opportunityId': {
       id: '/crm_/propostas/$opportunityId'
@@ -485,17 +565,21 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   AdminPerfisRoute: AdminPerfisRoute,
   AdminUsuariosRoute: AdminUsuariosRoute,
+  AssinarTokenRoute: AssinarTokenRoute,
   ClientesClientIdRoute: ClientesClientIdRouteWithChildren,
   ClientesNovoRoute: ClientesNovoRoute,
+  ContratosContractIdRoute: ContratosContractIdRoute,
   ModulosModuleRoute: ModulosModuleRoute,
   ProcessosCadastroRoute: ProcessosCadastroRoute,
   ProdutosProductIdRoute: ProdutosProductIdRouteWithChildren,
   ProdutosNovoRoute: ProdutosNovoRoute,
   ClientesIndexRoute: ClientesIndexRoute,
+  ContratosIndexRoute: ContratosIndexRoute,
   ProcessosIndexRoute: ProcessosIndexRoute,
   ProdutosIndexRoute: ProdutosIndexRoute,
   CrmPropostasOpportunityIdRoute: CrmPropostasOpportunityIdRoute,
   ProcessosServicosServiceIdRoute: ProcessosServicosServiceIdRoute,
+  CrmPropostasIndexRoute: CrmPropostasIndexRoute,
   ProcessosServicosIndexRoute: ProcessosServicosIndexRoute,
 }
 export const routeTree = rootRouteImport

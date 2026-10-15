@@ -15,7 +15,7 @@ function LoginPage() {
   return (
     <main className="login-page">
       <section className="login-story">
-        <div className="brand"><span className="brand-mark">N</span><span>Nexo</span></div>
+        <div className="brand"><img className="brand-logo" src="/Resulta.png?v=20261015-2" alt="Resulta" /><span>Resulta</span></div>
         <div className="story-copy">
           <p className="eyebrow light">Operação de consultoria, conectada.</p>
           <h1>Do primeiro contato<br />ao aprendizado final.</h1>
@@ -34,7 +34,7 @@ function LoginPage() {
           } catch { setError('Não foi possível entrar. Tente novamente.') }
           finally { setPending(false) }
         }}>
-          <div className="mobile-brand"><span className="brand-mark">N</span><span>Nexo</span></div>
+          <div className="mobile-brand"><img className="brand-logo" src="/Resulta.png?v=20261015-2" alt="Resulta" /><span>Resulta</span></div>
           <p className="eyebrow">Acesso interno</p>
           <h2>Bem-vindo de volta</h2>
           <p className="muted">Use suas credenciais corporativas para continuar.</p>
