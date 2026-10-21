@@ -19,7 +19,7 @@ export function CrmShell({ children, title, eyebrow, action, fluid = false }: { 
       <SidebarSection label="COMERCIAL">
         <NavLink to="/crm" icon={<PipelineIcon />}>Pipeline</NavLink>
         <NavLink to="/clientes" icon={<BuildingIcon />}>Clientes e contatos</NavLink>
-        <NavLink to="/produtos" icon={<BoxIcon />}>Produtos</NavLink>
+        <NavLink to="/produtos" icon={<BoxIcon />}>Portfólio</NavLink>
       </SidebarSection>
       <SidebarSection label="GESTÃO" className="mt-6"><NavLink to="/crm/propostas" icon={<DocumentIcon />}>Propostas</NavLink><div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[12px] text-[#82a397] max-lg:hidden"><ChartIcon /> Indicadores <span className="ml-auto text-[8px]">em breve</span></div></SidebarSection>
       <div className="mt-auto pt-6"><div className="flex items-center gap-2.5 rounded-xl bg-black/10 p-2.5 max-lg:justify-center max-lg:bg-transparent max-lg:p-0"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#d9ae61] text-[10px] font-extrabold text-[#19392f]">{initials(user?.name ?? '')}</span><div className="grid min-w-0 max-lg:hidden"><strong className="truncate text-[10px]">{user?.name}</strong><small className="truncate text-[8px] text-[#7fa295]">{user?.email}</small></div><button className="ml-auto cursor-pointer border-0 bg-transparent text-[10px] text-[#86a79a] max-lg:hidden" onClick={async () => { await logoutFn(); await router.invalidate(); await navigate({ to: '/login' }) }}>Sair</button></div></div>

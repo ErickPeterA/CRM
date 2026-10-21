@@ -22,6 +22,7 @@ import { Route as ClientesClientIdRouteImport } from './routes/clientes/$clientI
 import { Route as ClientesNovoRouteImport } from './routes/clientes/novo'
 import { Route as ContratosIndexRouteImport } from './routes/contratos/index'
 import { Route as ContratosContractIdRouteImport } from './routes/contratos/$contractId'
+import { Route as CrmOpportunityIdRouteImport } from './routes/crm_.$opportunityId'
 import { Route as ModulosModuleRouteImport } from './routes/modulos.$module'
 import { Route as ProcessosIndexRouteImport } from './routes/processos/index'
 import { Route as ProcessosCadastroRouteImport } from './routes/processos/cadastro'
@@ -100,6 +101,11 @@ const ContratosContractIdRoute = ContratosContractIdRouteImport.update({
   path: '/contratos/$contractId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CrmOpportunityIdRoute = CrmOpportunityIdRouteImport.update({
+  id: '/crm_/$opportunityId',
+  path: '/crm/$opportunityId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ModulosModuleRoute = ModulosModuleRouteImport.update({
   id: '/modulos/$module',
   path: '/modulos/$module',
@@ -175,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/clientes/$clientId': typeof ClientesClientIdRouteWithChildren
   '/clientes/novo': typeof ClientesNovoRoute
   '/contratos/$contractId': typeof ContratosContractIdRoute
+  '/crm/$opportunityId': typeof CrmOpportunityIdRoute
   '/modulos/$module': typeof ModulosModuleRoute
   '/processos/cadastro': typeof ProcessosCadastroRoute
   '/produtos/$productId': typeof ProdutosProductIdRouteWithChildren
@@ -202,6 +209,7 @@ export interface FileRoutesByTo {
   '/clientes/$clientId': typeof ClientesClientIdRouteWithChildren
   '/clientes/novo': typeof ClientesNovoRoute
   '/contratos/$contractId': typeof ContratosContractIdRoute
+  '/crm/$opportunityId': typeof CrmOpportunityIdRoute
   '/modulos/$module': typeof ModulosModuleRoute
   '/processos/cadastro': typeof ProcessosCadastroRoute
   '/produtos/$productId': typeof ProdutosProductIdRouteWithChildren
@@ -230,6 +238,7 @@ export interface FileRoutesById {
   '/clientes/$clientId': typeof ClientesClientIdRouteWithChildren
   '/clientes/novo': typeof ClientesNovoRoute
   '/contratos/$contractId': typeof ContratosContractIdRoute
+  '/crm_/$opportunityId': typeof CrmOpportunityIdRoute
   '/modulos/$module': typeof ModulosModuleRoute
   '/processos/cadastro': typeof ProcessosCadastroRoute
   '/produtos/$productId': typeof ProdutosProductIdRouteWithChildren
@@ -259,6 +268,7 @@ export interface FileRouteTypes {
     | '/clientes/$clientId'
     | '/clientes/novo'
     | '/contratos/$contractId'
+    | '/crm/$opportunityId'
     | '/modulos/$module'
     | '/processos/cadastro'
     | '/produtos/$productId'
@@ -286,6 +296,7 @@ export interface FileRouteTypes {
     | '/clientes/$clientId'
     | '/clientes/novo'
     | '/contratos/$contractId'
+    | '/crm/$opportunityId'
     | '/modulos/$module'
     | '/processos/cadastro'
     | '/produtos/$productId'
@@ -313,6 +324,7 @@ export interface FileRouteTypes {
     | '/clientes/$clientId'
     | '/clientes/novo'
     | '/contratos/$contractId'
+    | '/crm_/$opportunityId'
     | '/modulos/$module'
     | '/processos/cadastro'
     | '/produtos/$productId'
@@ -341,6 +353,7 @@ export interface RootRouteChildren {
   ClientesClientIdRoute: typeof ClientesClientIdRouteWithChildren
   ClientesNovoRoute: typeof ClientesNovoRoute
   ContratosContractIdRoute: typeof ContratosContractIdRoute
+  CrmOpportunityIdRoute: typeof CrmOpportunityIdRoute
   ModulosModuleRoute: typeof ModulosModuleRoute
   ProcessosCadastroRoute: typeof ProcessosCadastroRoute
   ProdutosProductIdRoute: typeof ProdutosProductIdRouteWithChildren
@@ -446,6 +459,13 @@ declare module '@tanstack/react-router' {
       path: '/contratos/$contractId'
       fullPath: '/contratos/$contractId'
       preLoaderRoute: typeof ContratosContractIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/crm_/$opportunityId': {
+      id: '/crm_/$opportunityId'
+      path: '/crm/$opportunityId'
+      fullPath: '/crm/$opportunityId'
+      preLoaderRoute: typeof CrmOpportunityIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/modulos/$module': {
@@ -569,6 +589,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClientesClientIdRoute: ClientesClientIdRouteWithChildren,
   ClientesNovoRoute: ClientesNovoRoute,
   ContratosContractIdRoute: ContratosContractIdRoute,
+  CrmOpportunityIdRoute: CrmOpportunityIdRoute,
   ModulosModuleRoute: ModulosModuleRoute,
   ProcessosCadastroRoute: ProcessosCadastroRoute,
   ProdutosProductIdRoute: ProdutosProductIdRouteWithChildren,
