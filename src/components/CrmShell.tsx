@@ -1,13 +1,40 @@
 import { Link, useNavigate, useRouteContext, useRouter } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { logout } from '../lib/auth.functions'
+import { createJourneySsoCode } from '../lib/journey-sso.functions'
 
 export function CrmShell({ children, title, eyebrow, action, fluid = false }: { children: ReactNode; title: string; eyebrow: string; action?: ReactNode; fluid?: boolean }) {
   const { user } = useRouteContext({ from: '__root__' })
   const logoutFn = useServerFn(logout)
+  const createJourneySsoCodeFn = useServerFn(createJourneySsoCode)
   const navigate = useNavigate()
   const router = useRouter()
+  const [journeyLoading, setJourneyLoading] = useState(false)
+  const [journeyError, setJourneyError] = useState(false)
+
+  async function openJourney() {
+    if (journeyLoading) return
+
+    const journeyWindow = window.open('', '_blank', 'noopener,noreferrer')
+    setJourneyLoading(true)
+    setJourneyError(false)
+
+    try {
+      const url = await createJourneySsoCodeFn()
+      if (journeyWindow) journeyWindow.location.replace(url)
+      else window.location.assign(url)
+    } catch (cause) {
+      journeyWindow?.close()
+      if (cause instanceof Error && cause.message.includes('AUTHENTICATION_REQUIRED')) {
+        await navigate({ to: '/login' })
+        return
+      }
+      setJourneyError(true)
+    } finally {
+      setJourneyLoading(false)
+    }
+  }
 
   return <div className="min-h-screen bg-[#f4f5f1] text-[#17221e] lg:grid lg:grid-cols-[260px_1fr] print:block print:bg-white">
     <aside className="fixed inset-y-0 left-0 z-20 flex w-[260px] flex-col bg-[#13382f] px-4 py-5 text-white max-lg:w-[76px] max-lg:px-3 print:hidden">
@@ -22,6 +49,8 @@ export function CrmShell({ children, title, eyebrow, action, fluid = false }: { 
         <NavLink to="/produtos" icon={<BoxIcon />}>Portfólio</NavLink>
       </SidebarSection>
       <SidebarSection label="GESTÃO" className="mt-6"><NavLink to="/crm/propostas" icon={<DocumentIcon />}>Propostas</NavLink><div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[12px] text-[#82a397] max-lg:hidden"><ChartIcon /> Indicadores <span className="ml-auto text-[8px]">em breve</span></div></SidebarSection>
+      <SidebarSection label="ACESSOS" className="mt-6"><button type="button" onClick={openJourney} disabled={journeyLoading} className="flex w-full cursor-pointer items-center gap-3 rounded-lg border-0 bg-transparent px-3 py-2.5 text-left text-[12px] text-[#a9c2b8] transition hover:bg-white/[.07] hover:text-white disabled:cursor-wait disabled:opacity-60 max-lg:justify-center max-lg:px-0 [&_svg]:size-4" title="Abrir Jornada em nova aba"><JourneyIcon /><span className="max-lg:hidden">{journeyLoading ? 'Abrindo Jornada...' : 'Jornada'} <span aria-hidden="true">↗</span></span></button></SidebarSection>
+      {journeyError && <p role="alert" className="mt-3 rounded-lg bg-[#6d3028] px-3 py-2 text-[10px] text-white max-lg:px-2 max-lg:text-[8px]">Não foi possível abrir a Jornada. Tente novamente.</p>}
       <div className="mt-auto pt-6"><div className="flex items-center gap-2.5 rounded-xl bg-black/10 p-2.5 max-lg:justify-center max-lg:bg-transparent max-lg:p-0"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#d9ae61] text-[10px] font-extrabold text-[#19392f]">{initials(user?.name ?? '')}</span><div className="grid min-w-0 max-lg:hidden"><strong className="truncate text-[10px]">{user?.name}</strong><small className="truncate text-[8px] text-[#7fa295]">{user?.email}</small></div><button className="ml-auto cursor-pointer border-0 bg-transparent text-[10px] text-[#86a79a] max-lg:hidden" onClick={async () => { await logoutFn(); await router.invalidate(); await navigate({ to: '/login' }) }}>Sair</button></div></div>
     </aside>
     <main className="min-w-0 lg:col-start-2 max-lg:ml-[76px] print:m-0">
@@ -40,4 +69,5 @@ function BuildingIcon() { return <svg viewBox="0 0 24 24" className={iconClass}>
 function BoxIcon() { return <svg viewBox="0 0 24 24" className={iconClass}><path d="m12 3 9 5-9 5-9-5 9-5Zm-9 5v8l9 5 9-5V8M12 13v8" /></svg> }
 function DocumentIcon() { return <svg viewBox="0 0 24 24" className={iconClass}><path d="M6 2h8l4 4v16H6V2Zm8 0v5h4M9 12h6M9 16h6" /></svg> }
 function ChartIcon() { return <svg viewBox="0 0 24 24" className={iconClass}><path d="M4 20V10m6 10V4m6 16v-7m5 7H2" /></svg> }
+function JourneyIcon() { return <svg viewBox="0 0 24 24" className={iconClass}><path d="M5 19 19 5M9 5h10v10M19 14v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4" /></svg> }
 function ModuleSwitchIcon() { return <svg viewBox="0 0 24 24" className="size-[18px] fill-none stroke-[#9fc4b5] stroke-[1.6] transition group-hover:translate-x-0.5 group-hover:stroke-[#bce8d6]"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 17.5h7m-3-3 3 3-3 3"/></svg> }
