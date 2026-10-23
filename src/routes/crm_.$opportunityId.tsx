@@ -1,6 +1,7 @@
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { AreaBadge } from '../components/AreaBadge'
 import { CrmShell } from '../components/CrmShell'
+import { JourneyDetails } from '../components/JourneyInfo'
 import { getOpportunity } from '../lib/commercial.functions'
 import type { OpportunityStage } from '../lib/domain.types'
 
@@ -29,6 +30,7 @@ function OpportunityWorkspace() {
       <div className="border-t border-white/10 bg-black/10 px-[clamp(20px,4vw,42px)] py-5"><div className="flex min-w-[720px] items-center overflow-x-auto">{journey.map((step, index) => <div key={step.id} className="flex flex-1 items-center last:flex-none"><div className="flex items-center gap-2"><span className={`grid size-7 place-items-center rounded-full text-[9px] font-extrabold ${index < currentIndex ? 'bg-[#b8e986] text-[#173e32]' : index === currentIndex ? 'bg-white text-[#173e32]' : 'border border-white/15 text-[#78998c]'}`}>{index < currentIndex ? '✓' : index + 1}</span><strong className={`text-[9px] ${index <= currentIndex ? 'text-white' : 'text-[#78998c]'}`}>{step.label}</strong></div>{index < journey.length - 1 && <span className={`mx-3 h-px flex-1 ${index < currentIndex ? 'bg-[#b8e986]' : 'bg-white/10'}`} />}</div>)}</div></div>
     </section>
 
+    {opportunity.journey && <section className="mt-5"><JourneyDetails journey={opportunity.journey}/></section>}
     <section className="mt-5 grid gap-5 xl:grid-cols-[1fr_330px]">
       <div className="grid content-start gap-5">
         <WorkspaceSection eyebrow="CONTEXTO" title="Resumo da oportunidade" description="Informações iniciais registradas na criação do cartão.">

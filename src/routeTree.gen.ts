@@ -35,6 +35,7 @@ import { Route as CrmPropostasOpportunityIdRouteImport } from './routes/crm_.pro
 import { Route as ProcessosServicosIndexRouteImport } from './routes/processos/servicos/index'
 import { Route as ProcessosServicosServiceIdRouteImport } from './routes/processos/servicos/$serviceId'
 import { Route as ProdutosProductIdEditarRouteImport } from './routes/produtos/$productId/editar'
+import { Route as ApiInternalJourneyEventsRouteImport } from './routes/api/internal/journey/events'
 import { Route as ApiInternalSsoJourneyExchangeRouteImport } from './routes/api/internal/sso/journey/exchange'
 
 const IndexRoute = IndexRouteImport.update({
@@ -169,6 +170,12 @@ const ProdutosProductIdEditarRoute = ProdutosProductIdEditarRouteImport.update({
   path: '/editar',
   getParentRoute: () => ProdutosProductIdRoute,
 } as any)
+const ApiInternalJourneyEventsRoute =
+  ApiInternalJourneyEventsRouteImport.update({
+    id: '/api/internal/journey/events',
+    path: '/api/internal/journey/events',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiInternalSsoJourneyExchangeRoute =
   ApiInternalSsoJourneyExchangeRouteImport.update({
     id: '/api/internal/sso/journey/exchange',
@@ -203,6 +210,7 @@ export interface FileRoutesByFullPath {
   '/produtos/$productId/editar': typeof ProdutosProductIdEditarRoute
   '/crm/propostas/': typeof CrmPropostasIndexRoute
   '/processos/servicos/': typeof ProcessosServicosIndexRoute
+  '/api/internal/journey/events': typeof ApiInternalJourneyEventsRoute
   '/api/internal/sso/journey/exchange': typeof ApiInternalSsoJourneyExchangeRoute
 }
 export interface FileRoutesByTo {
@@ -232,6 +240,7 @@ export interface FileRoutesByTo {
   '/produtos/$productId/editar': typeof ProdutosProductIdEditarRoute
   '/crm/propostas': typeof CrmPropostasIndexRoute
   '/processos/servicos': typeof ProcessosServicosIndexRoute
+  '/api/internal/journey/events': typeof ApiInternalJourneyEventsRoute
   '/api/internal/sso/journey/exchange': typeof ApiInternalSsoJourneyExchangeRoute
 }
 export interface FileRoutesById {
@@ -262,6 +271,7 @@ export interface FileRoutesById {
   '/produtos/$productId/editar': typeof ProdutosProductIdEditarRoute
   '/crm_/propostas/': typeof CrmPropostasIndexRoute
   '/processos/servicos/': typeof ProcessosServicosIndexRoute
+  '/api/internal/journey/events': typeof ApiInternalJourneyEventsRoute
   '/api/internal/sso/journey/exchange': typeof ApiInternalSsoJourneyExchangeRoute
 }
 export interface FileRouteTypes {
@@ -293,6 +303,7 @@ export interface FileRouteTypes {
     | '/produtos/$productId/editar'
     | '/crm/propostas/'
     | '/processos/servicos/'
+    | '/api/internal/journey/events'
     | '/api/internal/sso/journey/exchange'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -322,6 +333,7 @@ export interface FileRouteTypes {
     | '/produtos/$productId/editar'
     | '/crm/propostas'
     | '/processos/servicos'
+    | '/api/internal/journey/events'
     | '/api/internal/sso/journey/exchange'
   id:
     | '__root__'
@@ -351,6 +363,7 @@ export interface FileRouteTypes {
     | '/produtos/$productId/editar'
     | '/crm_/propostas/'
     | '/processos/servicos/'
+    | '/api/internal/journey/events'
     | '/api/internal/sso/journey/exchange'
   fileRoutesById: FileRoutesById
 }
@@ -379,6 +392,7 @@ export interface RootRouteChildren {
   ProcessosServicosServiceIdRoute: typeof ProcessosServicosServiceIdRoute
   CrmPropostasIndexRoute: typeof CrmPropostasIndexRoute
   ProcessosServicosIndexRoute: typeof ProcessosServicosIndexRoute
+  ApiInternalJourneyEventsRoute: typeof ApiInternalJourneyEventsRoute
   ApiInternalSsoJourneyExchangeRoute: typeof ApiInternalSsoJourneyExchangeRoute
 }
 
@@ -566,6 +580,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProdutosProductIdEditarRouteImport
       parentRoute: typeof ProdutosProductIdRoute
     }
+    '/api/internal/journey/events': {
+      id: '/api/internal/journey/events'
+      path: '/api/internal/journey/events'
+      fullPath: '/api/internal/journey/events'
+      preLoaderRoute: typeof ApiInternalJourneyEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/internal/sso/journey/exchange': {
       id: '/api/internal/sso/journey/exchange'
       path: '/api/internal/sso/journey/exchange'
@@ -623,6 +644,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProcessosServicosServiceIdRoute: ProcessosServicosServiceIdRoute,
   CrmPropostasIndexRoute: CrmPropostasIndexRoute,
   ProcessosServicosIndexRoute: ProcessosServicosIndexRoute,
+  ApiInternalJourneyEventsRoute: ApiInternalJourneyEventsRoute,
   ApiInternalSsoJourneyExchangeRoute: ApiInternalSsoJourneyExchangeRoute,
 }
 export const routeTree = rootRouteImport
