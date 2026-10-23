@@ -16,13 +16,16 @@ export function CrmShell({ children, title, eyebrow, action, fluid = false }: { 
   async function openJourney() {
     if (journeyLoading) return
 
-    const journeyWindow = window.open('', '_blank', 'noopener,noreferrer')
+    const journeyWindow = window.open('about:blank', '_blank')
     setJourneyLoading(true)
     setJourneyError(false)
 
     try {
       const url = await createJourneySsoCodeFn()
-      if (journeyWindow) journeyWindow.location.replace(url)
+      if (journeyWindow) {
+        journeyWindow.opener = null
+        journeyWindow.location.replace(url)
+      }
       else window.location.assign(url)
     } catch (cause) {
       journeyWindow?.close()
