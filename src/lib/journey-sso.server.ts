@@ -1,7 +1,7 @@
 import '@tanstack/react-start/server-only'
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
-import { currentUser } from './auth.server'
-import { transaction } from './db.server'
+import { currentUser, requirePermission } from './auth.server'
+import { query, transaction } from './db.server'
 
 const CODE_TTL_MS = 60_000
 
@@ -27,6 +27,29 @@ export async function createJourneySsoCode() {
   const user = await currentUser()
   if (!user) throw new Error('AUTHENTICATION_REQUIRED')
 
+  return issueJourneySsoUrl(user.id)
+}
+
+export async function createJourneyResultSsoUrl(opportunityId:string) {
+  const user = await requirePermission('commercial.read')
+  const result = await query<{status:string|null;result_reference:string|null}>(
+    `select j.status, j.result_reference
+     from commercial_opportunities o
+     left join journey_instances j on j.opportunity_id = o.id
+     where o.id = $1 and o.archived_at is null`,
+    [opportunityId],
+  )
+  const journey = result.rows[0]
+  if (!journey) throw new Error('OPPORTUNITY_NOT_FOUND')
+  if (!journey.status) throw new Error('JOURNEY_NOT_FOUND')
+  if (journey.status !== 'completed' || !journey.result_reference) throw new Error('JOURNEY_RESULT_NOT_AVAILABLE')
+
+  const next = `/gestao/resultados/${encodeURIComponent(journey.result_reference)}`
+  return issueJourneySsoUrl(user.id,next)
+}
+
+async function issueJourneySsoUrl(userId:string,next?:string) {
+
   const url = new URL('/auth/sso', getJourneyAppUrl())
   const code = randomBytes(32).toString('base64url')
   const expiresAt = new Date(Date.now() + CODE_TTL_MS)
@@ -34,11 +57,12 @@ export async function createJourneySsoCode() {
   await transaction(async (client) => {
     await client.query(
       'insert into sso_codes (code_hash, user_id, expires_at) values ($1, $2, $3)',
-      [hashCode(code), user.id, expiresAt],
+      [hashCode(code), userId, expiresAt],
     )
   })
 
   url.searchParams.set('code', code)
+  if(next)url.searchParams.set('next',next)
   return url.toString()
 }
 

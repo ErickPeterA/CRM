@@ -1,18 +1,23 @@
 import type { ReactNode } from 'react'
+import { useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
+import { useServerFn } from '@tanstack/react-start'
 import type { JourneyDiagnosticSummary } from '../lib/domain.types'
+import { createJourneyResultUrl } from '../lib/journey-sso.functions'
 
 type RecordValue = Record<string,unknown>
-type Props = { data:JourneyDiagnosticSummary|null; resultReference:string|null }
+type Props = { data:JourneyDiagnosticSummary|null; resultReference:string|null; opportunityId:string }
 const dimensions:Record<string,string>={STRATEGY:'Estratégia',PROCESS:'Processos',PEOPLE:'Pessoas',FINANCE:'Financeiro'}
 const known=new Set(['dimensionScores','priorities','opportunities','structuredPoints','commercialSummary','serviceScores','diagnosticMode','diagnosticReasons','investigationAreas','uncertaintyCount','uncertaintyRate','engineVersion'])
 
-export function JourneyDiagnosticView({data,resultReference}:Props){
-  if(!data)return <Shell><p className="text-[10px] text-[#75877f]">Nenhum resumo foi recebido.</p><Reference value={resultReference}/></Shell>
+export function JourneyDiagnosticView({data,resultReference,opportunityId}:Props){
+  if(!data)return <Shell>{resultReference&&<ResultAccessButton opportunityId={opportunityId}/>}<p className="text-[10px] text-[#75877f]">Nenhum resumo foi recebido.</p><Reference value={resultReference}/></Shell>
   const summary=records(data.commercialSummary), scores=records(data.dimensionScores), priorities=records(data.priorities), opportunities=records(data.opportunities), points=records(data.structuredPoints)
   const reasons=strings(data.diagnosticReasons), areas=strings(data.investigationAreas), services=serviceEntries(data.serviceScores,priorities,opportunities)
   const extras=Object.entries(data).filter(([key,value])=>!known.has(key)&&primitive(value)!==null)
   const hasContent=summary.length||scores.length||priorities.length||opportunities.length||points.length||reasons.length||areas.length||services.length||extras.length
   return <Shell>
+    {resultReference&&<ResultAccessButton opportunityId={opportunityId}/>} 
     {!hasContent&&<p className="text-[10px] text-[#75877f]">O diagnóstico foi recebido, mas ainda não possui informações visuais disponíveis.</p>}
     {!!summary.length&&<Section eyebrow="RESUMO DO DIAGNÓSTICO" title="Recomendações principais"><div className="grid gap-3 lg:grid-cols-3">{summary.map((item,index)=><article key={`${text(item.need)}-${index}`} className="rounded-xl border border-[#dce7e1] bg-white p-4 shadow-[0_7px_20px_rgba(31,70,56,.04)]"><p className="text-[8px] font-extrabold tracking-[1px] text-[#789087]">NECESSIDADE {index+1}</p>{text(item.need)&&<h6 className="mt-2 text-[12px] leading-5 text-[#24463a]">{text(item.need)}</h6>}{text(item.scenario)&&<Labeled label="Cenário" value={text(item.scenario)}/>} {text(item.solution)&&<div className="mt-3 rounded-lg bg-[#eaf4ee] px-3 py-2.5"><span className="block text-[8px] font-bold uppercase tracking-[.8px] text-[#668276]">Solução recomendada</span><strong className="mt-1 block text-[10px] text-[#315d4d]">{text(item.solution)}</strong></div>}</article>)}</div></Section>}
     {!!scores.length&&<Section eyebrow="DIMENSÕES" title="Visão por área"><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{scores.map((item,index)=><Dimension key={`${text(item.dimension)}-${index}`} item={item}/>)}</div></Section>}
@@ -23,6 +28,26 @@ export function JourneyDiagnosticView({data,resultReference}:Props){
     {!!services.length&&<Section eyebrow="SERVIÇOS SINALIZADOS" title="Aderência às recomendações" muted><div className="flex flex-wrap gap-2">{services.map(item=><span key={item.code} className="rounded-full border border-[#dce5e0] bg-white px-3 py-2 text-[9px] text-[#60736a]"><strong className="text-[#355d4d]">{item.name}</strong> · score {item.score}</span>)}</div></Section>}
     <Technical data={data} extras={extras} resultReference={resultReference}/>
   </Shell>
+}
+
+function ResultAccessButton({opportunityId}:{opportunityId:string}){
+  const createUrl=useServerFn(createJourneyResultUrl),navigate=useNavigate()
+  const [loading,setLoading]=useState(false),[error,setError]=useState(false)
+  async function openResult(){
+    if(loading)return
+    const resultWindow=window.open('about:blank','_blank')
+    setLoading(true);setError(false)
+    try{
+      const url=await createUrl({data:{opportunityId}})
+      if(resultWindow){resultWindow.opener=null;resultWindow.location.replace(url)}
+      else window.location.assign(url)
+    }catch(cause){
+      resultWindow?.close()
+      if(cause instanceof Error&&cause.message.includes('AUTHENTICATION_REQUIRED')){await navigate({to:'/login'});return}
+      setError(true)
+    }finally{setLoading(false)}
+  }
+  return <div><button type="button" onClick={openResult} disabled={loading} className="cursor-pointer rounded-[10px] border-0 bg-[#173e32] px-4 py-2.5 text-[10px] font-bold text-white transition hover:bg-[#245545] disabled:cursor-wait disabled:opacity-60">{loading?'Abrindo resultado...':'Abrir resultado completo ↗'}</button>{error&&<p role="alert" className="mt-2 text-[9px] text-[#a04435]">Não foi possível abrir o resultado completo. Tente novamente.</p>}</div>
 }
 
 function Shell({children}:{children:ReactNode}){return <div className="mt-5 border-t border-[#d9e6df] pt-5"><h4 className="text-sm text-[#294a3e]">Diagnóstico da Jornada</h4><div className="mt-4 grid gap-6">{children}</div></div>}
