@@ -15,7 +15,17 @@ export type TemplatePhase = { id:string; template_version_id:string; name:string
 export type AdminUser = { id:string; name:string; email:string; status:'active'|'inactive'|'locked'; role_ids:string[]; role_names:string[] }
 export type RoleRecord = { id:string; code:string; name:string; description:string|null; is_system:boolean; permission_codes:string[] }
 export type OpportunityStage = 'entrada'|'qualificacao'|'diagnostico'|'proposta'|'negociacao'|'ganho'
-export type JourneyInstanceRecord = { id:string; external_journey_id:string; status:'generated'|'shared'|'started'|'identified'|'in_progress'|'completed'|'revoked'|'expired'|'failed'; progress:number|null; expires_at:string|null; started_at:string|null; identified_at:string|null; completed_at:string|null; diagnostic_summary:Record<string,string|number|boolean|null>|null; result_reference:string|null; created_at:string }
+export type JourneyDimensionScore = { name?:string; label?:string; score?:number; dimension?:string; evaluatedQuestions?:number }
+export type JourneyRecommendation = { need?:string; score?:number; evidence?:string[]; dimension?:string; serviceCode?:string; serviceName?:string; interpretation?:string }
+export type JourneyCommercialSummary = { need?:string; scenario?:string; solution?:string }
+export type JourneyStructuredPoint = { text?:string; dimension?:string }
+export type JourneyDiagnosticSummary = {
+  dimensionScores?:JourneyDimensionScore[]; priorities?:JourneyRecommendation[]; opportunities?:JourneyRecommendation[]
+  structuredPoints?:JourneyStructuredPoint[]; commercialSummary?:JourneyCommercialSummary[]; serviceScores?:Record<string,number>
+  diagnosticMode?:boolean; diagnosticReasons?:string[]; investigationAreas?:string[]; uncertaintyCount?:number
+  uncertaintyRate?:number; engineVersion?:string
+}
+export type JourneyInstanceRecord = { id:string; external_journey_id:string; status:'generated'|'shared'|'started'|'identified'|'in_progress'|'completed'|'revoked'|'expired'|'failed'; progress:number|null; expires_at:string|null; started_at:string|null; identified_at:string|null; completed_at:string|null; diagnostic_summary:JourneyDiagnosticSummary|null; result_reference:string|null; created_at:string }
 export type OpportunityRecord = { id:string; company:string; contact:string; email:string|null; phone:string|null; area:'Estratégia'|'Processos'|'Pessoas'|'Financeiro'; stage:OpportunityStage; estimated_value:string; owner_name:string; due_date:string|null; notes:string|null; proposal_id?:string|null; proposal_status?:'draft'|'sent'|'accepted'|'rejected'|null; proposal_updated_at?:string|null; journey?:JourneyInstanceRecord|null }
 export type ProposalRecord = { id:string; opportunity_id:string; version:number; status:'draft'|'sent'|'accepted'|'rejected'; client_company:string; client_contact:string; client_email:string|null; client_phone:string|null; service_ids:string[]; total:string; validity:string; payment_terms:string; notes:string|null; created_at:string; updated_at:string }
 export type ContractService = { id:string; code:string; name:string; category:string; description:string; price:number }
