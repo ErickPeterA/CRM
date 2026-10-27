@@ -4,6 +4,7 @@ import { timelineMilestones } from '../lib/journey-timeline'
 type MilestoneType=JourneyTimelineEvent['event_type']
 const labels:Record<MilestoneType,string>={
   'journey.created':'Jornada gerada',
+  'journey.shared':'Jornada compartilhada',
   'journey.started':'Jornada iniciada',
   'journey.identified':'Identificação recebida',
   'journey.completed':'Jornada concluída',
